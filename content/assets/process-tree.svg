@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" role="img" aria-label="Sample process tree: an Office process starts a fake service process that connects out and to a file server">
+<rect width="800" height="300" fill="#0d1117"/>
+<g font-family="ui-monospace, Menlo, Consolas, monospace" font-size="14">
+<rect x="40" y="40" width="250" height="56" rx="6" fill="#161b22" stroke="#2a313b"/>
+<text x="56" y="64" fill="#e6edf3">WINWORD.EXE</text><text x="56" y="84" fill="#8b949e">PID 3320 · parent explorer.exe</text>
+<path d="M165 96v44h60" fill="none" stroke="#8b949e" stroke-width="1.5"/>
+<rect x="225" y="112" width="300" height="56" rx="6" fill="#1c232c" stroke="#58a6ff" stroke-width="2"/>
+<text x="241" y="136" fill="#58a6ff">svch0st.exe</text><text x="241" y="156" fill="#8b949e">PID 4128 · C:\Users\...\AppData\</text>
+<path d="M525 140h60" fill="none" stroke="#8b949e" stroke-width="1.5"/>
+<rect x="585" y="60" width="175" height="48" rx="6" fill="#161b22" stroke="#2a313b"/>
+<text x="599" y="80" fill="#e6edf3">203.0.113[.]45</text><text x="599" y="98" fill="#8b949e">TCP 443 · external</text>
+<rect x="585" y="172" width="175" height="48" rx="6" fill="#161b22" stroke="#2a313b"/>
+<text x="599" y="192" fill="#e6edf3">FS01 (internal)</text><text x="599" y="210" fill="#8b949e">TCP 445 · SMB</text>
+<path d="M585 140v-56M585 140v56" fill="none" stroke="#8b949e" stroke-width="1.5"/>
+<text x="40" y="270" fill="#8b949e" font-size="12">Sample figure. Replace with a screenshot from your own analysis.</text>
+</g>
+</svg>
