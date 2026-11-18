@@ -38,7 +38,10 @@ for (const file of htmlFiles) {
     if (rel === '404.html' && url.startsWith('/')) continue;
     checked++;
     const [target, hash] = url.split('#');
-    const dest = target ? path.resolve(path.dirname(file), target) : file;
+    let dest = target ? path.resolve(path.dirname(file), target) : file;
+    if (fs.existsSync(dest) && fs.statSync(dest).isDirectory() && fs.existsSync(path.join(dest, 'index.html'))) {
+      dest = path.join(dest, 'index.html');
+    }
     if (!fs.existsSync(dest)) { fail(`MISSING     ${rel}: ${url}`); continue; }
     if (hash && dest.endsWith('.html') && !ids(dest).has(hash)) fail(`NO ANCHOR   ${rel}: ${url}`);
   }

@@ -164,7 +164,7 @@ function loadCollection(dir, urlDir) {
     out.push({
       title: data.title, date: data.date, category: data.category || 'General', summary: data.summary || '',
       tags: data.tags || [], tools: data.tools || [], attack: data.attack || [], sample: !!data.sample,
-      source: data.source || '', body, slug, url: `${urlDir}/${slug}.html`, readMin: Math.max(1, Math.round(words / 200)),
+      source: data.source || '', body, slug, url: `${urlDir}/${slug}/`, readMin: Math.max(1, Math.round(words / 200)),
     });
   }
   return out.sort((a, b) => b.date.localeCompare(a.date));
@@ -296,8 +296,8 @@ function contactBlock() {
 }
 
 /* ---------- pages ---------- */
-const pages = []; // { file, html }
-const add = (file, html) => pages.push({ file, html });
+const pages = []; // { file, html, url }
+const add = (file, html, url = file) => pages.push({ file, html, url });
 
 let cases = [];
 let ctfs = [];
@@ -387,7 +387,7 @@ function indexPage({ dir, active, title, lede, entries, label, render }) {
 }
 
 function articlePage(e, { dir, active, indexLabel, all }) {
-  const base = '../';
+  const base = '../../';
   const { html, heads } = renderMarkdown(e.body, base);
   const toc = heads.length >= 2
     ? `<aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol>${heads.map((h, i) => `<li><a href="#${h.id}"${i === 0 ? ' class="on"' : ''}>${h.text}</a></li>`).join('')}</ol></aside>`
@@ -411,7 +411,7 @@ ${more.length ? `<section class="more"><div class="wrap">
   <div class="head"><h2 class="sec-title">More ${esc(indexLabel.toLowerCase())}</h2><a class="more-link" href="${base}${dir}/index.html">See all →</a></div>
   <div class="list">${more.map((x) => entryRow(x, base)).join('')}</div>
 </div></section>` : ''}`;
-  add(e.url, layout({ title: e.title, desc: e.summary, base, active, body, file: e.url, article: true }));
+  add(`${e.url}index.html`, layout({ title: e.title, desc: e.summary, base, active, body, file: e.url, article: true }), e.url);
 }
 
 function simplePages() {
@@ -568,7 +568,7 @@ function build() {
 `);
   if (SITE) {
     const dates = new Map([...cases, ...ctfs, ...articles].map((e) => [e.url, e.date]));
-    const urls = pages.filter((p) => p.file !== '404.html').map((p) => `  <url><loc>${esc(p.file === 'index.html' ? SITE : SITE + p.file)}</loc>${dates.has(p.file) ? `<lastmod>${dates.get(p.file)}</lastmod>` : ''}</url>`);
+    const urls = pages.filter((p) => p.file !== '404.html').map((p) => `  <url><loc>${esc(p.url === 'index.html' ? SITE : SITE + p.url)}</loc>${dates.has(p.url) ? `<lastmod>${dates.get(p.url)}</lastmod>` : ''}</url>`);
     fs.writeFileSync(path.join(DIST, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
   }
   const assets = path.join(CONTENT, 'assets');
@@ -609,7 +609,8 @@ if (process.argv.includes('--serve')) {
       }
       let p = decodeURIComponent(req.url.split('?')[0]);
       if (p.endsWith('/')) p += 'index.html';
-      const file = path.join(DIST, path.normalize(p));
+      let file = path.join(DIST, path.normalize(p));
+      if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
       if (!file.startsWith(DIST) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
         res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
         fs.createReadStream(path.join(DIST, '404.html')).pipe(res);

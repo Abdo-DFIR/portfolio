@@ -37,14 +37,14 @@
   <div class="tags"><span class="tag">Splunk</span><span class="tag">SPL</span><span class="tag">Sysmon</span><span class="tag">Powershell</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag att">TT1685.005</span><span class="tag att">CAR-2021-01-003</span></div>
 </div></section>
 <div class="layout"><div class="wrap">
-  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#before-we-start">Before we start</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-tree">Reconstructed Process Execution Tree</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#timeline">Timeline</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#detection-improvement">Detection Improvement</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
+  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#hunting-overview">Hunting Overview</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-tree">Reconstructed Process Execution Tree</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#timeline">Timeline</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#detection-improvement">Detection Improvement</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
   <div class="prose"><h2 id="scenario">Scenario</h2>
 <p>After identifying <strong>suspicious defense evasion</strong> activities during the previous investigations, 
 we started a new threat-hunting investigation in Splunk to examine how the attacker attempted to clear Windows event logs and hide their activities.</p>
 <h2 id="key-findings">Key Findings</h2>
 <div class="callout"><span class="callout-label">Key Findings</span><ul>
 <li><strong>What happened:</strong> The Security, System, and Application event logs were cleared within 10 seconds (22:30:48–22:30:58).</li>
-<li><strong>How:</strong> Three <code>wevtutil.exe</code> processes, launched by <code>cmd.exe</code> (PID <code>3916</code>), cleared the logs. The <code>cmd.exe</code> process was started by the malicious <code>THybZSNv.exe</code> service binary identified in the <a href="https://abdo-mo.pages.dev/case-studies/Hunting%20PowerShell%20Execution%20Artifacts.html" target="_blank" rel="noopener noreferrer">previous investigation</a>.</li>
+<li><strong>How:</strong> Three <code>wevtutil.exe</code> processes, launched by <code>cmd.exe</code> (PID <code>3916</code>), cleared the logs. The <code>cmd.exe</code> process was started by the malicious <code>THybZSNv.exe</code> service binary identified in the <a href="https://abdo-mo.pages.dev/case-studies/hunting_powerShell_execution_artifacts/" target="_blank" rel="noopener noreferrer">previous investigation</a>.</li>
 <li><strong>Evidence:</strong> Sysmon Event ID 1, Security Event ID 1102, and System Event ID 104.</li>
 <li><strong>Why evidence remained available:</strong> The attacker continued working after clearing the logs. <code>mimi.exe</code> was downloaded at <code>22:31:19</code>, and the activity remained visible in Splunk.</li>
 </ul>
@@ -55,8 +55,8 @@ we started a new threat-hunting investigation in Splunk to examine how the attac
 <li>SIEM Platform: Splunk Enterprise.</li>
 <li>Log Sources: Sysmon &amp; Security Event Logs.</li>
 </ul>
-<h2 id="before-we-start">Before we start</h2>
-<div class="callout"><span class="callout-label">Question to answer</span><h3 id="what-are-we-hunting-for">What are we hunting for?</h3>
+<h2 id="hunting-overview">Hunting Overview</h2>
+<div class="callout"><span class="callout-label">Questions to answer</span><h3 id="what-are-we-hunting-for">What are we hunting for?</h3>
 <ul>
 <li>Events indicating that Windows event logs have been cleared.</li>
 <li>Execution of log-clearing commands or utilities, such as <code>wevtutil.exe</code> and<br> <code>Clear-EventLog</code>.</li>
@@ -78,20 +78,20 @@ we started a new threat-hunting investigation in Splunk to examine how the attac
 <p>During the previous investigation, we identified suspicious Defense Evasion activities related to Windows event log clearing that require further investigation.</p>
 <hr>
 <h3 id="stage-1-confirming-evidence-of-log-clearing">Stage 1: Confirming evidence of log clearing</h3>
-<p>First, I will search for Windows Event IDs <code>1102</code> which indicate that Windows Security event log have been cleared.</p>
+<p>First, I will search for Windows Event ID <code>1102</code> which indicate that Windows Security event log have been cleared.</p>
 <div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot; 
     source=&quot;XmlWinEventLog:Security&quot; 
     EventID=1102
     | table _time, Computer, Channel, EventID, ProcessID, SubjectUserName, Name</code></pre></div>
 <figure><img src="../assets/case-studies/Hunting Defense Evasion Artifacts/1.png" alt="Security Event ID 1102 results" loading="lazy" width="1778" height="111"></figure>
 <p>The results show that the Security event log was cleared on <code>WKS-4F1D.avongate.local</code> at <code>2025-06-11 22:30:49</code>.</p>
-<p>I also searched for Event ID 104 to check for additional evidence of Windows event log clearing.</p>
+<p>I also searched for Event ID <code>104</code> to check for additional evidence of Windows event log clearing.</p>
 <div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot; 
     source=&quot;XmlWinEventLog:System&quot; 
     EventID=104
     | table _time, Computer, Channel, EventID, Name, object, action</code></pre></div>
 <figure><img src="../assets/case-studies/Hunting Defense Evasion Artifacts/5.png" alt="System Event ID 104 results" loading="lazy" width="1797" height="186"></figure>
-<p>Together, Event IDs 1102 and 104 confirm that the adversary cleared event logs to hide malicious activity.</p>
+<p>Together, Event IDs <code>1102</code> and <code>104</code> confirm that the adversary cleared event logs to hide malicious activity.</p>
 <hr>
 <h3 id="stage-2-finding-the-command-responsible">Stage 2: Finding the command responsible</h3>
 <p>Based on MITRE ATT&amp;CK technique <strong><a href="https://attack.mitre.org/techniques/T1685/005/" target="_blank" rel="noopener noreferrer">T1685.005 (Clear Windows Event Logs)</a></strong>, I examined Sysmon process creation events for <code>wevtutil.exe</code> and 
@@ -182,7 +182,11 @@ This executable was previously investigated in my blog <strong>Hunting Suspiciou
 </article>
 <section class="more"><div class="wrap">
   <div class="head"><h2 class="sec-title">More case studies</h2><a class="more-link" href="../case-studies/index.html">See all →</a></div>
-  <div class="list"><a class="row" href="../case-studies/Hunting PowerShell Execution Artifacts.html" data-tags="Threat Hunting,PowerShell,Suspicious Execution" data-text="hunting suspicious command execution artifacts a threat-hunting investigation using splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities. threat hunting threat hunting powershell suspicious execution splunk spl sysmon powershell mitre att&amp;ck virustotal t1059 t1059.001 car-2014-04-003">
+  <div class="list"><a class="row" href="../case-studies/hunting_persistence_artifacts.html" data-tags="Threat Hunting,Windows Registry,Persistence" data-text="hunting registry run key persistence a threat-hunting investigation using splunk to identify suspicious registry run key modifications and potential persistence activity. threat hunting threat hunting windows registry persistence splunk spl sysmon mitre att&amp;ck t1547 t1547.001 car-2013-01-002">
+  <time datetime="2026-11-17">Nov 2026</time>
+  <span class="t"><strong>Hunting Registry Run Key Persistence</strong><span>A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.</span></span>
+  <span class="cat">Threat Hunting</span>
+</a><a class="row" href="../case-studies/hunting_powerShell_execution_artifacts.html" data-tags="Threat Hunting,PowerShell,Suspicious Execution" data-text="hunting suspicious command execution artifacts a threat-hunting investigation using splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities. threat hunting threat hunting powershell suspicious execution splunk spl sysmon powershell mitre att&amp;ck virustotal t1059 t1059.001 car-2014-04-003">
   <time datetime="2026-11-09">Nov 2026</time>
   <span class="t"><strong>Hunting Suspicious Command Execution Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities.</span></span>
   <span class="cat">Threat Hunting</span>

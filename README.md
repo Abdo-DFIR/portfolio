@@ -80,7 +80,7 @@ $ command that starts with a dollar sign gets a prompt
 ![Alt text](assets/my-screenshot.png "Caption shown under the image")
 ````
 
-Put images in `content/assets/`. Link to another page of your own site with a leading slash, for example `[About](/about.html)` or `[My other case](/case-studies/my-case.html)`; without the slash the link breaks, and `npm run check` will tell you. Tables, lists, links and `inline code` work as usual. Arabic and other right-to-left text lines up correctly paragraph by paragraph.
+Put images in `content/assets/`. Link to another page of your own site with a leading slash, for example `[About](/about.html)` or `[My other case](/case-studies/my-case/)`; without the slash the link breaks, and `npm run check` will tell you. Case studies, CTFs and write-ups are published at extensionless URLs such as `/case-studies/my-case/`. Tables, lists, links and `inline code` work as usual. Arabic and other right-to-left text lines up correctly paragraph by paragraph.
 
 ## Deploy for free
 

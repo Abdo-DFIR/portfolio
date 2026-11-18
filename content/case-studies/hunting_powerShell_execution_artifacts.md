@@ -27,8 +27,8 @@ The investigation focused on tracing the source of the activity, analyzing relat
 - SIEM Platform: Splunk Enterprise.
 - Log Sources: Sysmon & Security Event Logs.
 
-## Before we start
-:::callout Question to answer
+## Hunting Overview
+:::callout Questions to answer
 ### What are we hunting for?
 - Suspicious execution of `cmd.exe` and `powershell.exe`.
 - Encoded or obfuscated PowerShell commands.
@@ -49,12 +49,11 @@ The investigation focused on tracing the source of the activity, analyzing relat
 
 
 ##  Hunting & Analysis
-**The hunt moves through six stages: an initial lead, confirming and scoping it, a second payload, the root cause, the service behind it, and the full process tree.**
+**The hunt moves through six stages: an initial investigating, confirming and scoping it, a second payload, the root cause, the service behind it, and the full process tree.**
 
 ---
 
-### Stage 1: Initial lead, PowerShell downloading a DLL
-
+### Stage 1: Initial investigating, PowerShell downloading a DLL
 
 First, we identify the available data sources within our Splunk indexes using the following SPL query:
 

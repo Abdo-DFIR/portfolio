@@ -11,11 +11,10 @@ source: Lab Scenario: SOC 201 Course From TCM Security.
 ## Scenario
 After identifying **suspicious defense evasion** activities during the previous investigations, 
 we started a new threat-hunting investigation in Splunk to examine how the attacker attempted to clear Windows event logs and hide their activities.
-
 ## Key Findings
 :::callout Key Findings
 - **What happened:** The Security, System, and Application event logs were cleared within 10 seconds (22:30:48–22:30:58).
-- **How:** Three `wevtutil.exe` processes, launched by `cmd.exe` (PID `3916`), cleared the logs. The `cmd.exe` process was started by the malicious `THybZSNv.exe` service binary identified in the [previous investigation](https://abdo-mo.pages.dev/case-studies/Hunting%20PowerShell%20Execution%20Artifacts.html).
+- **How:** Three `wevtutil.exe` processes, launched by `cmd.exe` (PID `3916`), cleared the logs. The `cmd.exe` process was started by the malicious `THybZSNv.exe` service binary identified in the [previous investigation](https://abdo-mo.pages.dev/case-studies/hunting_powerShell_execution_artifacts/).
 - **Evidence:** Sysmon Event ID 1, Security Event ID 1102, and System Event ID 104.
 - **Why evidence remained available:** The attacker continued working after clearing the logs. `mimi.exe` was downloaded at `22:31:19`, and the activity remained visible in Splunk.
 :::
@@ -27,8 +26,8 @@ we started a new threat-hunting investigation in Splunk to examine how the attac
 - Log Sources: Sysmon & Security Event Logs.
 
 
-## Before we start
-:::callout Question to answer
+## Hunting Overview
+:::callout Questions to answer
 ### What are we hunting for?
 - Events indicating that Windows event logs have been cleared.
 - Execution of log-clearing commands or utilities, such as `wevtutil.exe` and<br> `Clear-EventLog`.
