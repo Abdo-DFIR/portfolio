@@ -488,8 +488,8 @@ function simplePages() {
       </div>
     </div>
     <div class="error-signal" aria-hidden="true">
-      <div class="error-signal-head"><span><i></i> ROUTE DIAGNOSTICS</span><span>LOOKUP FAILED</span></div>
-      <div class="error-number"><span>ERR_</span><strong>404</strong></div>
+      <div class="error-signal-head"><span><i></i> ROUTE DIAGNOSTICS</span> <span>LOOKUP FAILED</span></div>
+      <div class="error-number"><span>ERR_</span> <strong>404</strong></div>
       <div class="error-trace">
         <svg viewBox="0 0 320 56" preserveAspectRatio="none">
           <path d="M4 38h76l16-18h50" />
@@ -501,8 +501,8 @@ function simplePages() {
         <span>REQUESTED ROUTE <b>UNRESOLVED</b></span>
       </div>
       <div class="error-log">
-        <span><b>01</b> requested page</span><span class="error-log-value">not found</span>
-        <span><b>02</b> site index</span><span class="error-log-value">online</span>
+        <span><b>01</b> requested page</span> <span class="error-log-value">not found</span>
+        <span><b>02</b> site index</span> <span class="error-log-value">online</span>
       </div>
       <div class="error-signal-foot"><span></span> END OF TRACE <span class="error-trace-time">STATUS 404</span></div>
     </div>
