@@ -33,7 +33,7 @@ Needs Node 18 or newer.
 
 Run `npm run preview` from the project folder. It builds the site and serves it starting at `http://localhost:4173`; if that port is already in use, it tries the next 20 ports and prints the address it selected. To choose a different starting port, run `npm run preview -- --port 5000`. Unknown URLs show the custom 404 page. Keep that terminal open while you work. The preview watches `content/`, `src/` and `site.config.json`, rebuilds when they change, and automatically refreshes the browser.
 
-On the Investigations and CTFs pages, selecting a tag updates the URL. Use **Copy filtered link** to share that category selection; opening the link restores the selected tag.
+On the Investigations and CTFs pages, selecting a tag updates the URL and opening that link restores the selected tag.
 
 ## Add an investigation
 

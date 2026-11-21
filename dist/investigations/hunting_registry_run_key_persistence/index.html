@@ -9,10 +9,10 @@
 <meta property="og:title" content="Hunting Registry Run Key Persistence | Abdelrhman Mohamed">
 <meta property="og:description" content="A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.">
 <meta name="theme-color" content="#0d1117">
-<link rel="canonical" href="https://abdo-dfir.github.io/portfolio/investigations/hunting_persistence_artifacts/">
+<link rel="canonical" href="https://abdo-dfir.github.io/portfolio/investigations/hunting_registry_run_key_persistence/">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Abdelrhman Mohamed">
-<meta property="og:url" content="https://abdo-dfir.github.io/portfolio/investigations/hunting_persistence_artifacts/">
+<meta property="og:url" content="https://abdo-dfir.github.io/portfolio/investigations/hunting_registry_run_key_persistence/">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <link rel="preload" href="../../fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -36,13 +36,13 @@
 <article>
 <section class="arthead"><div class="wrap">
   <a class="crumb" href="../../investigations/index.html">← Investigations</a>
-  <div class="kicker"><span class="cat">Threat Hunting</span><time datetime="2026-11-17">Nov 2026</time><span>2 min read</span><span>Lab Scenario: SOC 201 Course From TCM Security.</span></div>
+  <div class="kicker"><span class="cat">Threat Hunting</span><time datetime="2026-11-17">Nov 2026</time><span>4 min read</span><span>Lab Scenario: SOC 201 Course From TCM Security.</span></div>
   <h1>Hunting Registry Run Key Persistence</h1>
   <p class="summary">A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.</p>
   <div class="tags"><span class="tag">Splunk</span><span class="tag">SPL</span><span class="tag">Sysmon</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag att">T1547</span><span class="tag att">T1547.001</span><span class="tag att">CAR-2013-01-002</span></div>
 </div></section>
 <div class="layout"><div class="wrap">
-  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#hunting-overview">Hunting Overview</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-tree">Reconstructed Process Execution Tree</a></li><li><a href="#timeline">Timeline</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#indicators-of-compromise">Indicators of Compromise</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
+  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#hunting-overview">Hunting Overview</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-trees">Reconstructed Process Execution Trees</a></li><li><a href="#timeline">Timeline</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#indicators-of-compromise">Indicators of Compromise</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
   <div class="prose"><h2 id="scenario">Scenario</h2>
 <p>Following the previous investigations, the SOC team initiated a new threat-hunting investigation to examine potential <strong>persistence mechanisms</strong>.
 The investigation focuses on identifying <strong>suspicious modifications to Windows Registry Run keys and Startup entries</strong> that could allow an attacker to maintain persistence.</p>
@@ -79,18 +79,114 @@ The investigation focuses on identifying <strong>suspicious modifications to Win
 </div><h2 id="hunting-analysis">Hunting &amp; Analysis</h2>
 <p>During the previous investigation, we identified suspicious Registry Run key modifications that could indicate potential persistence activity.</p>
 <hr>
-<h3 id="stage-1-identifying-suspicious-registry-modifications">Stage 1: Identifying Suspicious Registry Modifications</h3>
-<p>According to MITRE ATT&amp;CK technique T1547.001, Registry Run keys and Startup folders can be abused to achieve persistence.
-<figure><img src="../../assets/investigations/Hunting Registry Run Key Persistence/1.png" alt="Registery Run Paths" loading="lazy" width="1221" height="599"></figure>
-We searched <code>Sysmon Event ID 13</code> for changes to Registry Run keys to identify suspicious modifications that could allow programs to execute automatically during system startup or user logon.</p>
-<div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot;
-    source=&quot;XmlWinEventLog:Microsoft-Windows-Sysmon/Operational&quot;
+<h3 id="stage-1-creating-a-registry-persistence-lookup-table">Stage 1: Creating a Registry Persistence Lookup Table</h3>
+<p>According to <strong><a href="https://attack.mitre.org/techniques/T1547/001/" target="_blank" rel="noopener noreferrer">MITRE ATT&amp;CK technique T1547.001</a></strong>, Registry Run keys and Startup folders can be abused to achieve persistence.</p>
+<div class="callout"><span class="callout-label">Why Use a Splunk Lookup Table?</span><p>I choose a <strong><a href="https://help.splunk.com/en/splunk-enterprise/manage-knowledge-objects/knowledge-management-manual/9.3/use-lookups-in-splunk-web/about-lookups" target="_blank" rel="noopener noreferrer">Splunk Lookup Table</a></strong>
+because it allows me to store multiple Registry paths and easily match them against Registry modification events.<br>
+I created a CSV lookup file containing Registry paths associated with persistence, along with their corresponding MITRE ATT&amp;CK technique IDs and descriptions.</p>
+</div><details>
+<summary>Lookup Table Contents</summary><div class="tablewrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>RegistryPath</th>
+<th>MITRE_ID</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>HKU\*\Software\Microsoft\Windows\CurrentVersion\Run\*</code></td>
+<td>T1547.001</td>
+<td>User-specific auto-run key</td>
+</tr>
+<tr>
+<td><code>HKU\*\Software\Microsoft\Windows\CurrentVersion\RunOnce\*</code></td>
+<td>T1547.001</td>
+<td>Runs once at user logon</td>
+</tr>
+<tr>
+<td><code>HKLM\Software\Microsoft\Windows\CurrentVersion\Run\*</code></td>
+<td>T1547.001</td>
+<td>Machine-wide auto-run key</td>
+</tr>
+<tr>
+<td><code>HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce\*</code></td>
+<td>T1547.001</td>
+<td>Runs once at system startup</td>
+</tr>
+<tr>
+<td><code>HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnceEx\*</code></td>
+<td>T1547.001</td>
+<td>Extended RunOnce mechanism</td>
+</tr>
+<tr>
+<td><code>HKU\*\Software\Microsoft\Windows\CurrentVersion\RunOnceEx\*</code></td>
+<td>T1547.001</td>
+<td>User-level RunOnceEx mechanism</td>
+</tr>
+<tr>
+<td><code>HKLM\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run\*</code></td>
+<td>T1547.001</td>
+<td>32-bit machine-wide auto-run key</td>
+</tr>
+<tr>
+<td><code>HKU\*\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run\*</code></td>
+<td>T1547.001</td>
+<td>32-bit user auto-run key</td>
+</tr>
+<tr>
+<td><code>HKU\*\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run\*</code></td>
+<td>T1547.001</td>
+<td>User policy-based Run key</td>
+</tr>
+<tr>
+<td><code>HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run\*</code></td>
+<td>T1547.001</td>
+<td>Machine policy-based Run key</td>
+</tr>
+</tbody></table></div>
+</details><h4>Steps to Create the Lookup Table</h4>
+<ol>
+<li>Navigate to <code>Settings</code> &gt; <code>Lookups</code>.</li>
+<li>Open the Lookup table files section.</li>
+<li>Click <code>New Lookup Table File</code>.</li>
+<li>Select the destination app.</li>
+<li>Click Choose File and upload the CSV file.</li>
+<li>Enter the destination filename, ending in .csv.</li>
+<li>Click Save.</li>
+</ol>
+<p>We can now reference the uploaded CSV filename directly in our Splunk query using the <code>lookup</code> command.<br><br></p>
+<p>I also used <strong><a href="https://docs.splunk.com/Splexicon:Lookupdefinition?_gl=1*6ssuny*_gcl_au*NjQ5NjU4OTcyLjE3OTMyMDU4MTI.*FPAU*NjQ5NjU4OTcyLjE3OTMyMDU4MTI.*_ga*MTA0MDgyNzQ1LjE3OTMyMDU4MTI.*_ga_5EPM2P39FV*czE3OTUyOTAxNzMkbzE4JGcwJHQxNzk1MjkwMTczJGo2MCRsMCRoMTMyNTc4MDM4MA..*_fplc*cE1SVmxMWnVON1FCUiUyRnlrUzk1YW1Ub2l3NHY4b0VUQWlFTE5ScWNFJTJCMk9LR2pUckFZNDhhVTJSaEglMkZuJTJCeDRPZG5uNWdFMlVSNG1aM3JwTlIlMkJDM0F5REhMZUolMkZ5OUlGQWVTVXY3Mng3aDZRakwlMkY3OXhHcWZhbW9FSndZU2clM0QlM0Q." target="_blank" rel="noopener noreferrer">Lookup Definitions</a></strong>
+to configure how Splunk accesses and uses the uploaded lookup table.</p>
+<details>
+<summary>The following settings were applied:</summary><ul>
+<li><strong>Case sensitive match:</strong> Unchecked, allowing case-insensitive matching.</li>
+<li><strong>Match Type:</strong> <code>WILDCARD(RegistryPath)</code>, allowing Registry path patterns containing wildcards (<code>*</code>).</li>
+</ul>
+</details><hr>
+<h3 id="stage-2-hunting-for-registry-persistence-activity">Stage 2: Hunting for Registry Persistence Activity</h3>
+<p>After creating and configuring the Registry persistence lookup table, I used it to search Sysmon Event ID 13 logs for modifications to Registry locations associated with persistence.<br></p>
+<div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot; 
+    source=&quot;XmlWinEventLog:Microsoft-Windows-Sysmon/Operational&quot; 
     EventID=13
-    TargetObject=&quot;*\\Software\\Microsoft\\Windows\\CurrentVersion\\Run*&quot;
-    | table _time, Computer, User, TargetObject, Details, Image, ProcessGuid
+    | lookup registry_persistence_lookup RegistryPath AS TargetObject OUTPUT MITRE_ID, Description, RegistryPath
+    | where isnotnull(MITRE_ID) 
+    | table _time, Computer, User, TargetObject, Details, Image, ProcessGuid, ProcessId, MITRE_ID, Description
     | sort - _time</code></pre></div>
-<figure><img src="../../assets/investigations/Hunting Registry Run Key persistence/2.png" alt="Registery Run Paths" loading="lazy" width="1885" height="398"></figure>
-<h2 id="reconstructed-process-execution-tree">Reconstructed Process Execution Tree</h2>
+<p>During the investigation, multiple Registry-based autostart entries were identified.<br>
+While some appeared to be associated with legitimate applications, one entry stood out as suspicious.<br>
+<figure><img src="../../assets/investigations/Hunting Registry Run Key Persistence/1.png" alt="Lookup table output" loading="lazy" width="1288" height="125"></figure></p>
+<p>It was configured under the machine-wide <code>Run</code> key with the value <code>Updater</code>, pointing to <code>rundll32 C:\Windows\System32\dghelper.dll,MainFunc</code>. </p>
+<p>The Registry modification was performed by <code>reg.exe</code> under the <code>NT AUTHORITY\SYSTEM</code> account.<br></p>
+<p>This finding will be examined further by investigating the process responsible for creating the entry and reconstructing its execution chain.</p>
+<hr>
+<h3 id="stage-3-tracing-the-execution-of-the-persistence-entry">Stage 3: Tracing the Execution of the Persistence Entry</h3>
+<p>I started by searching for <code>dghelper.dll</code> across Sysmon Process Creation events to identify related process activity.</p>
+<div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot; 
+    source=&quot;XmlWinEventLog:Microsoft-Windows-Sysmon/Operational&quot; 
+    EventID=1 &quot;dghelper.dll&quot;
+    | table _time, Computer, User, Image, CommandLine, ParentCommandLine
+    | sort - _time</code></pre></div>
+<h2 id="reconstructed-process-execution-trees">Reconstructed Process Execution Trees</h2>
 <h2 id="timeline">Timeline</h2>
 <p>:::timeline
 :::</p>

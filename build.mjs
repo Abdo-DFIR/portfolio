@@ -271,7 +271,6 @@ function filterUI(entries, label, stacked = false) {
   <label class="sr-only" for="q">Search ${esc(label)}</label>
   <input class="search" id="q" type="search" placeholder="Search ${esc(label)}" data-search autocomplete="off">
   <div class="filter" data-filter role="group" aria-label="Filter by tag">${chips.map(([t, n]) => `<button type="button" class="chip" data-tag="${esc(t)}" aria-pressed="${t === 'All'}">${esc(t)}<span class="n">${n}</span></button>`).join('')}</div>
-  <button class="btn sm share-filter" type="button" data-share-filter hidden>Copy filtered link</button>
 </div>
 <p class="count" data-count aria-live="polite"></p>`;
 }

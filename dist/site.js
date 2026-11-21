@@ -81,7 +81,6 @@
     var search = $('[data-search]');
     var empty = $('[data-empty]');
     var count = $('[data-count]');
-    var shareFilter = $('[data-share-filter]');
     function tagFromUrl() {
       var requested = new URLSearchParams(location.search).get('tag');
       return chips.some(function (chip) { return chip.getAttribute('data-tag') === requested; }) ? requested : 'All';
@@ -110,7 +109,6 @@
       chips.forEach(function (c) {
         c.setAttribute('aria-pressed', c.getAttribute('data-tag') === tag ? 'true' : 'false');
       });
-      if (shareFilter) shareFilter.hidden = tag === 'All';
     };
     chips.forEach(function (c) {
       c.addEventListener('click', function () {
@@ -118,9 +116,6 @@
         updateUrl();
         apply();
       });
-    });
-    if (shareFilter) shareFilter.addEventListener('click', function () {
-      copyText(location.href, shareFilter);
     });
     window.addEventListener('popstate', function () {
       tag = tagFromUrl();
