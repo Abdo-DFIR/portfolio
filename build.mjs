@@ -173,9 +173,8 @@ function loadCollection(dir, urlDir) {
 /* ---------- shared HTML pieces ---------- */
 const NAV = [
   { key: 'home', label: 'Home', href: 'index.html' },
-  { key: 'cases', label: 'Case Studies', href: 'case-studies/index.html' },
+  { key: 'cases', label: 'Investigations', href: 'investigations/index.html' },
   { key: 'ctfs', label: 'CTFs', href: 'ctfs/index.html' },
-  { key: 'write-ups', label: 'Write-ups', href: 'write-ups/index.html' },
   /* { key: 'skills', label: 'Skills', href: 'skills.html' },
   { key: 'certs', label: 'Certifications', href: 'certifications.html' }, */
   { key: 'about', label: 'About', href: 'about.html' },
@@ -301,15 +300,12 @@ const add = (file, html, url = file) => pages.push({ file, html, url });
 
 let cases = [];
 let ctfs = [];
-let articles = [];
 function homePage() {
   const base = '';
   const featured = cases.slice(0, 3);
-  const latest = articles.slice(0, 3);
   const activity = [
-    ...cases.map((e) => ({ ...e, activityType: 'CASE STUDY' })),
+    ...cases.map((e) => ({ ...e, activityType: 'INVESTIGATION' })),
     ...ctfs.map((e) => ({ ...e, activityType: 'CTF' })),
-    ...articles.map((e) => ({ ...e, activityType: 'WRITE-UP' })),
   ].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4);
   const activityDate = (iso) => {
     const [year, month, day] = iso.split('-');
@@ -329,7 +325,7 @@ function homePage() {
       <h1>${esc(cfg.name)}<br><span class="hero-role">${esc(cfg.role)}</span></h1>
     </div>
     <p class="lede hero-intro" aria-label="${esc(cfg.intro)}"><span data-typewriter aria-hidden="true">${esc(cfg.intro)}</span></p>
-    <div class="actions"><a class="btn primary" href="case-studies/index.html">View case studies</a><a class="btn" href="contact.html">Contact me</a></div>
+    <div class="actions"><a class="btn primary" href="investigations/index.html">View investigations</a><a class="btn" href="contact.html">Contact me</a></div>
   </div>
   <aside class="activity-terminal" aria-label="Latest site activity">
     <div class="activity-titlebar">
@@ -343,7 +339,7 @@ function homePage() {
   </aside>
 </div></section>
 ${featured.length ? `<section><div class="wrap">
-  <div class="head"><h2 class="sec-title">Case studies</h2><a class="more-link" href="case-studies/index.html">All case studies →</a></div>
+  <div class="head"><h2 class="sec-title">Investigations</h2><a class="more-link" href="investigations/index.html">All investigations →</a></div>
   <p class="lede">In-depth investigations, evidence analysis, timelines, and findings.</p>
   ${sampleNote(featured)}
   <div class="cases">${featured.map((e) => caseCard(e, base)).join('')}</div>
@@ -354,12 +350,6 @@ ${ctfs.length ? `<section><div class="wrap">
   ${sampleNote(ctfs.slice(0, 3))}
   <div class="cases">${ctfs.slice(0, 3).map((e) => caseCard(e, base, true)).join('')}</div>
 </div></section>` : ''}
-${latest.length ? `<section><div class="wrap">
-  <div class="head"><h2 class="sec-title">Write-ups</h2><a class="more-link" href="write-ups/index.html">All write-ups →</a></div>
-  <p class="lede">Forensic artifacts, tools, techniques, and methodologies.</p>
-  <div class="list">${latest.map((e) => entryRow(e, base)).join('')}</div>
-</div></section>` : ''}
-
 ${false ? `<section><div class="wrap"><div class="cols">
   <div><div class="head"><h2 class="sec-title">Skills &amp; tools</h2><a class="more-link" href="skills.html">Details →</a></div><dl class="skills">${skillsRows(5)}</dl></div>
   <div><div class="head"><h2 class="sec-title">Certifications</h2><a class="more-link" href="certifications.html">Details →</a></div><div class="certs">${cfg.certifications.map(certItem).join('')}</div></div>
@@ -484,7 +474,7 @@ function simplePages() {
   // 404
   const root = cfg.basePath || '/';
   add('404.html', layout({
-    title: 'Page not found', desc: 'This page could not be found. Return to the homepage or browse DFIR case studies and write-ups.', base: root, active: '', noindex: true,
+    title: 'Page not found', desc: 'This page could not be found. Return to the homepage or browse DFIR investigations.', base: root, active: '', noindex: true,
     body: `<section class="error-page" aria-labelledby="error-title"><div class="wrap">
   <div class="error-card">
     <div class="error-copy">
@@ -494,9 +484,8 @@ function simplePages() {
       <p class="error-prompt">Pick up the investigation somewhere else:</p>
       <div class="actions">
         <a class="btn primary" href="${root}index.html">Return home</a>
-        <a class="btn" href="${root}case-studies/index.html">Browse case studies</a>
+        <a class="btn" href="${root}investigations/index.html">Browse investigations</a>
       </div>
-      <a class="error-articles" href="${root}write-ups/index.html">Explore the write-ups <span aria-hidden="true">→</span></a>
     </div>
     <div class="error-signal" aria-hidden="true">
       <div class="error-signal-head"><span><i></i> ROUTE DIAGNOSTICS</span><span>LOOKUP FAILED</span></div>
@@ -526,18 +515,15 @@ function simplePages() {
 function build() {
   loadSettings();
   pages.length = 0;
-  cases = loadCollection('case-studies', 'case-studies');
+  cases = loadCollection('investigations', 'investigations');
   ctfs = loadCollection('ctfs', 'ctfs');
-  articles = loadCollection('write-ups', 'write-ups');
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
   homePage();
-  indexPage({ dir: 'case-studies', active: 'cases', title: 'Case Studies', lede: 'In-depth investigations, evidence analysis, timelines, and findings.', entries: cases, label: 'case studies', render: 'card' });
-  indexPage({ dir: 'write-ups', active: 'write-ups', title: 'Write-ups', lede: 'Forensic artifacts, tools, techniques, and methodologies.', entries: articles, label: 'write-ups', render: 'row' });
+  indexPage({ dir: 'investigations', active: 'cases', title: 'Investigations', lede: 'In-depth investigations, evidence analysis, timelines, and findings.', entries: cases, label: 'investigations', render: 'card' });
   indexPage({ dir: 'ctfs', active: 'ctfs', title: 'CTFs', lede: 'Hands-on challenges, investigations, and solutions.', entries: ctfs, label: 'CTFs', render: 'card' });
-  cases.forEach((e) => articlePage(e, { dir: 'case-studies', active: 'cases', indexLabel: 'Case studies', all: cases }));
+  cases.forEach((e) => articlePage(e, { dir: 'investigations', active: 'cases', indexLabel: 'Investigations', all: cases }));
   ctfs.forEach((e) => articlePage(e, { dir: 'ctfs', active: 'ctfs', indexLabel: 'CTFs', all: ctfs }));
-  articles.forEach((e) => articlePage(e, { dir: 'write-ups', active: 'write-ups', indexLabel: 'Write-ups', all: articles }));
   simplePages();
   for (const p of pages) {
     const out = path.join(DIST, p.file);
@@ -567,14 +553,14 @@ function build() {
   Cache-Control: no-store
 `);
   if (SITE) {
-    const dates = new Map([...cases, ...ctfs, ...articles].map((e) => [e.url, e.date]));
+    const dates = new Map([...cases, ...ctfs].map((e) => [e.url, e.date]));
     const urls = pages.filter((p) => p.file !== '404.html').map((p) => `  <url><loc>${esc(p.url === 'index.html' ? SITE : SITE + p.url)}</loc>${dates.has(p.url) ? `<lastmod>${dates.get(p.url)}</lastmod>` : ''}</url>`);
     fs.writeFileSync(path.join(DIST, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
   }
   const assets = path.join(CONTENT, 'assets');
   if (fs.existsSync(assets)) fs.cpSync(assets, path.join(DIST, 'assets'), { recursive: true });
   fs.writeFileSync(path.join(DIST, '.nojekyll'), '');
-  console.log(`Built ${pages.length} pages (${cases.length} case studies, ${ctfs.length} CTFs, ${articles.length} write-ups) into dist/`);
+  console.log(`Built ${pages.length} pages (${cases.length} investigations, ${ctfs.length} CTFs) into dist/`);
 }
 
 build();

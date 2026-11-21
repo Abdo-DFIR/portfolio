@@ -20,7 +20,7 @@
 <header class="bar">
   <div class="wrap bar-in">
     <a class="logo" href="../../index.html"><img class="logo-icon" src="../../favicon.svg" alt="">Abd0_M0<span>@</span>dfir</a>
-    <nav id="nav" aria-label="Main"><a href="../../index.html">Home</a><a href="../../case-studies/index.html" aria-current="page">Case Studies</a><a href="../../ctfs/index.html">CTFs</a><a href="../../write-ups/index.html">Write-ups</a><a href="../../about.html">About</a><a href="../../contact.html">Contact</a></nav>
+    <nav id="nav" aria-label="Main"><a href="../../index.html">Home</a><a href="../../investigations/index.html" aria-current="page">Investigations</a><a href="../../ctfs/index.html">CTFs</a><a href="../../about.html">About</a><a href="../../contact.html">Contact</a></nav>
     <div class="tools">
       <button class="icon-btn" id="theme" type="button" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor"/></svg></button>
       <button class="icon-btn menu-btn" id="menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
@@ -30,7 +30,7 @@
 <main id="main">
 <article>
 <section class="arthead"><div class="wrap">
-  <a class="crumb" href="../../case-studies/index.html">← Case studies</a>
+  <a class="crumb" href="../../investigations/index.html">← Investigations</a>
   <div class="kicker"><span class="cat">Threat Hunting</span><time datetime="2026-11-14">Nov 2026</time><span>5 min read</span><span>Lab Scenario: SOC 201 Course From TCM Security.</span></div>
   <h1>Hunting Defense Evasion Artifacts</h1>
   <p class="summary">A threat-hunting investigation using Splunk to identify suspicious defense evasion techniques on Windwos endpoint.</p>
@@ -44,7 +44,7 @@ we started a new threat-hunting investigation in Splunk to examine how the attac
 <h2 id="key-findings">Key Findings</h2>
 <div class="callout"><span class="callout-label">Key Findings</span><ul>
 <li><strong>What happened:</strong> The Security, System, and Application event logs were cleared within 10 seconds (22:30:48–22:30:58).</li>
-<li><strong>How:</strong> Three <code>wevtutil.exe</code> processes, launched by <code>cmd.exe</code> (PID <code>3916</code>), cleared the logs. The <code>cmd.exe</code> process was started by the malicious <code>THybZSNv.exe</code> service binary identified in the <a href="https://abdo-mo.pages.dev/case-studies/hunting_powerShell_execution_artifacts/" target="_blank" rel="noopener noreferrer">previous investigation</a>.</li>
+<li><strong>How:</strong> Three <code>wevtutil.exe</code> processes, launched by <code>cmd.exe</code> (PID <code>3916</code>), cleared the logs. The <code>cmd.exe</code> process was started by the malicious <code>THybZSNv.exe</code> service binary identified in The <a href="https://abdo-mo.pages.dev/investigations/hunting_powerShell_execution_artifacts/" target="_blank" rel="noopener noreferrer">previous investigation</a>.</li>
 <li><strong>Evidence:</strong> Sysmon Event ID 1, Security Event ID 1102, and System Event ID 104.</li>
 <li><strong>Why evidence remained available:</strong> The attacker continued working after clearing the logs. <code>mimi.exe</code> was downloaded at <code>22:31:19</code>, and the activity remained visible in Splunk.</li>
 </ul>
@@ -83,14 +83,14 @@ we started a new threat-hunting investigation in Splunk to examine how the attac
     source=&quot;XmlWinEventLog:Security&quot; 
     EventID=1102
     | table _time, Computer, Channel, EventID, ProcessID, SubjectUserName, Name</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting Defense Evasion Artifacts/1.png" alt="Security Event ID 1102 results" loading="lazy" width="1778" height="111"></figure>
+<figure><img src="../../assets/investigations/Hunting Defense Evasion Artifacts/1.png" alt="Security Event ID 1102 results" loading="lazy" width="1778" height="111"></figure>
 <p>The results show that the Security event log was cleared on <code>WKS-4F1D.avongate.local</code> at <code>2025-06-11 22:30:49</code>.</p>
 <p>I also searched for Event ID <code>104</code> to check for additional evidence of Windows event log clearing.</p>
 <div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot; 
     source=&quot;XmlWinEventLog:System&quot; 
     EventID=104
     | table _time, Computer, Channel, EventID, Name, object, action</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting Defense Evasion Artifacts/5.png" alt="System Event ID 104 results" loading="lazy" width="1797" height="186"></figure>
+<figure><img src="../../assets/investigations/Hunting Defense Evasion Artifacts/5.png" alt="System Event ID 104 results" loading="lazy" width="1797" height="186"></figure>
 <p>Together, Event IDs <code>1102</code> and <code>104</code> confirm that the adversary cleared event logs to hide malicious activity.</p>
 <hr>
 <h3 id="stage-2-finding-the-command-responsible">Stage 2: Finding the command responsible</h3>
@@ -101,7 +101,7 @@ source=&quot;XmlWinEventLog:Microsoft-Windows-Sysmon/Operational&quot; EventID=1
 | search Image=&quot;*\\wevtutil.exe&quot; AND CommandLine=&quot;*cl*&quot;
 | table _time, Computer, Image, CommandLine, ParentCommandLine ,ProcessId, ParentProcessId
 | sort - _time</code></pre></div>
-<p><figure><img src="../../assets/case-studies\Hunting Defense Evasion Artifacts/4.png" alt="evasion" loading="lazy" width="1886" height="182"></figure>
+<p><figure><img src="../../assets/investigations/Hunting Defense Evasion Artifacts/4.png" alt="evasion" loading="lazy" width="1886" height="182"></figure>
 The results show commands used to clear the System and Application event logs.</p>
 <ul>
 <li><strong>Security</strong>: <code>wevtutil cl Security</code> at 22:30:48.</li>
@@ -120,7 +120,7 @@ The results show commands used to clear the System and Application event logs.</
         ParentImage, ParentCommandLine, ProcessId,
         ParentProcessId, ProcessGuid
     | sort _time</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting Defense Evasion Artifacts/3.png" alt="Parent process of cmd.exe" loading="lazy" width="1876" height="142"></figure>
+<figure><img src="../../assets/investigations/Hunting Defense Evasion Artifacts/3.png" alt="Parent process of cmd.exe" loading="lazy" width="1876" height="142"></figure>
 <p><code>THybZSNv.exe</code> launched the suspicious <code>cmd.exe</code> process responsible for clearing the Windows event logs. <br><br>
 This executable was previously investigated in my blog <strong>Hunting Suspicious Command Execution Artifacts</strong>.</p>
 <hr>
@@ -181,12 +181,12 @@ This executable was previously investigated in my blog <strong>Hunting Suspiciou
 </div></div>
 </article>
 <section class="more"><div class="wrap">
-  <div class="head"><h2 class="sec-title">More case studies</h2><a class="more-link" href="../../case-studies/index.html">See all →</a></div>
-  <div class="list"><a class="row" href="../../case-studies/hunting_persistence_artifacts/" data-tags="Threat Hunting,Windows Registry,Persistence" data-text="hunting registry run key persistence a threat-hunting investigation using splunk to identify suspicious registry run key modifications and potential persistence activity. threat hunting threat hunting windows registry persistence splunk spl sysmon mitre att&amp;ck t1547 t1547.001 car-2013-01-002">
+  <div class="head"><h2 class="sec-title">More investigations</h2><a class="more-link" href="../../investigations/index.html">See all →</a></div>
+  <div class="list"><a class="row" href="../../investigations/hunting_persistence_artifacts/" data-tags="Threat Hunting,Windows Registry,Persistence" data-text="hunting registry run key persistence a threat-hunting investigation using splunk to identify suspicious registry run key modifications and potential persistence activity. threat hunting threat hunting windows registry persistence splunk spl sysmon mitre att&amp;ck t1547 t1547.001 car-2013-01-002">
   <time datetime="2026-11-17">Nov 2026</time>
   <span class="t"><strong>Hunting Registry Run Key Persistence</strong><span>A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.</span></span>
   <span class="cat">Threat Hunting</span>
-</a><a class="row" href="../../case-studies/hunting_powerShell_execution_artifacts/" data-tags="Threat Hunting,PowerShell,Suspicious Execution" data-text="hunting suspicious command execution artifacts a threat-hunting investigation using splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities. threat hunting threat hunting powershell suspicious execution splunk spl sysmon powershell mitre att&amp;ck virustotal t1059 t1059.001 car-2014-04-003">
+</a><a class="row" href="../../investigations/hunting_powerShell_execution_artifacts/" data-tags="Threat Hunting,PowerShell,Suspicious Execution" data-text="hunting suspicious command execution artifacts a threat-hunting investigation using splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities. threat hunting threat hunting powershell suspicious execution splunk spl sysmon powershell mitre att&amp;ck virustotal t1059 t1059.001 car-2014-04-003">
   <time datetime="2026-11-09">Nov 2026</time>
   <span class="t"><strong>Hunting Suspicious Command Execution Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities.</span></span>
   <span class="cat">Threat Hunting</span>

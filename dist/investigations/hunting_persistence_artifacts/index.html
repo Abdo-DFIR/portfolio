@@ -20,7 +20,7 @@
 <header class="bar">
   <div class="wrap bar-in">
     <a class="logo" href="../../index.html"><img class="logo-icon" src="../../favicon.svg" alt="">Abd0_M0<span>@</span>dfir</a>
-    <nav id="nav" aria-label="Main"><a href="../../index.html">Home</a><a href="../../case-studies/index.html" aria-current="page">Case Studies</a><a href="../../ctfs/index.html">CTFs</a><a href="../../write-ups/index.html">Write-ups</a><a href="../../about.html">About</a><a href="../../contact.html">Contact</a></nav>
+    <nav id="nav" aria-label="Main"><a href="../../index.html">Home</a><a href="../../investigations/index.html" aria-current="page">Investigations</a><a href="../../ctfs/index.html">CTFs</a><a href="../../about.html">About</a><a href="../../contact.html">Contact</a></nav>
     <div class="tools">
       <button class="icon-btn" id="theme" type="button" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor"/></svg></button>
       <button class="icon-btn menu-btn" id="menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
@@ -30,8 +30,8 @@
 <main id="main">
 <article>
 <section class="arthead"><div class="wrap">
-  <a class="crumb" href="../../case-studies/index.html">← Case studies</a>
-  <div class="kicker"><span class="cat">Threat Hunting</span><time datetime="2026-11-17">Nov 2026</time><span>1 min read</span><span>Lab Scenario: SOC 201 Course From TCM Security.</span></div>
+  <a class="crumb" href="../../investigations/index.html">← Investigations</a>
+  <div class="kicker"><span class="cat">Threat Hunting</span><time datetime="2026-11-17">Nov 2026</time><span>2 min read</span><span>Lab Scenario: SOC 201 Course From TCM Security.</span></div>
   <h1>Hunting Registry Run Key Persistence</h1>
   <p class="summary">A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.</p>
   <div class="tags"><span class="tag">Splunk</span><span class="tag">SPL</span><span class="tag">Sysmon</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag att">T1547</span><span class="tag att">T1547.001</span><span class="tag att">CAR-2013-01-002</span></div>
@@ -72,7 +72,19 @@ The investigation focuses on identifying <strong>suspicious modifications to Win
 <li>Correlate Registry changes with process creation events</li>
 </ul>
 </div><h2 id="hunting-analysis">Hunting &amp; Analysis</h2>
-<p><strong>The hunt moves through ... stages:</strong></p>
+<p>During the previous investigation, we identified suspicious Registry Run key modifications that could indicate potential persistence activity.</p>
+<hr>
+<h3 id="stage-1-identifying-suspicious-registry-modifications">Stage 1: Identifying Suspicious Registry Modifications</h3>
+<p>According to MITRE ATT&amp;CK technique T1547.001, Registry Run keys and Startup folders can be abused to achieve persistence.
+<figure><img src="../../assets/investigations/Hunting Registry Run Key Persistence/1.png" alt="Registery Run Paths" loading="lazy" width="1221" height="599"></figure>
+We searched <code>Sysmon Event ID 13</code> for changes to Registry Run keys to identify suspicious modifications that could allow programs to execute automatically during system startup or user logon.</p>
+<div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot;
+    source=&quot;XmlWinEventLog:Microsoft-Windows-Sysmon/Operational&quot;
+    EventID=13
+    TargetObject=&quot;*\\Software\\Microsoft\\Windows\\CurrentVersion\\Run*&quot;
+    | table _time, Computer, User, TargetObject, Details, Image, ProcessGuid
+    | sort - _time</code></pre></div>
+<figure><img src="../../assets/investigations/Hunting Registry Run Key persistence/2.png" alt="Registery Run Paths" loading="lazy" width="1885" height="398"></figure>
 <h2 id="reconstructed-process-execution-tree">Reconstructed Process Execution Tree</h2>
 <h2 id="timeline">Timeline</h2>
 <p>:::timeline
@@ -103,12 +115,12 @@ The investigation focuses on identifying <strong>suspicious modifications to Win
 </div></div>
 </article>
 <section class="more"><div class="wrap">
-  <div class="head"><h2 class="sec-title">More case studies</h2><a class="more-link" href="../../case-studies/index.html">See all →</a></div>
-  <div class="list"><a class="row" href="../../case-studies/hunting_defense_evasion_artifacts/" data-tags="Threat Hunting,Suspicious Execution,Defense Evasion" data-text="hunting defense evasion artifacts a threat-hunting investigation using splunk to identify suspicious defense evasion techniques on windwos endpoint. threat hunting threat hunting suspicious execution defense evasion splunk spl sysmon powershell mitre att&amp;ck tt1685.005 car-2021-01-003">
+  <div class="head"><h2 class="sec-title">More investigations</h2><a class="more-link" href="../../investigations/index.html">See all →</a></div>
+  <div class="list"><a class="row" href="../../investigations/hunting_defense_evasion_artifacts/" data-tags="Threat Hunting,Suspicious Execution,Defense Evasion" data-text="hunting defense evasion artifacts a threat-hunting investigation using splunk to identify suspicious defense evasion techniques on windwos endpoint. threat hunting threat hunting suspicious execution defense evasion splunk spl sysmon powershell mitre att&amp;ck tt1685.005 car-2021-01-003">
   <time datetime="2026-11-14">Nov 2026</time>
   <span class="t"><strong>Hunting Defense Evasion Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious defense evasion techniques on Windwos endpoint.</span></span>
   <span class="cat">Threat Hunting</span>
-</a><a class="row" href="../../case-studies/hunting_powerShell_execution_artifacts/" data-tags="Threat Hunting,PowerShell,Suspicious Execution" data-text="hunting suspicious command execution artifacts a threat-hunting investigation using splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities. threat hunting threat hunting powershell suspicious execution splunk spl sysmon powershell mitre att&amp;ck virustotal t1059 t1059.001 car-2014-04-003">
+</a><a class="row" href="../../investigations/hunting_powerShell_execution_artifacts/" data-tags="Threat Hunting,PowerShell,Suspicious Execution" data-text="hunting suspicious command execution artifacts a threat-hunting investigation using splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities. threat hunting threat hunting powershell suspicious execution splunk spl sysmon powershell mitre att&amp;ck virustotal t1059 t1059.001 car-2014-04-003">
   <time datetime="2026-11-09">Nov 2026</time>
   <span class="t"><strong>Hunting Suspicious Command Execution Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities.</span></span>
   <span class="cat">Threat Hunting</span>

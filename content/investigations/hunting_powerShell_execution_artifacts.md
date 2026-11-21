@@ -61,7 +61,7 @@ First, we identify the available data sources within our Splunk indexes using th
 | metadata type=sources index=*
 ```
 
-![Available data sources in Splunk](<assets/case-studies/Hunting PowerShell Execution Artifacts/1.png>)
+![Available data sources in Splunk](<assets/investigations/Hunting PowerShell Execution Artifacts/1.png>)
 
 Since Sysmon telemetry is available in our environment, we will focus our investigation on Sysmon events.
 
@@ -75,7 +75,7 @@ index="aa15cbf9"
     | stats count by Image
 ```
 
-![powershell.exe image paths](<assets/case-studies/Hunting PowerShell Execution Artifacts/2.png>)
+![powershell.exe image paths](<assets/investigations/Hunting PowerShell Execution Artifacts/2.png>)
 
 We identified two different paths for _`powershell.exe`_: one located in _`C:\Windows\System32`_, which is the native 64-bit version, and another in _`C:\Windows\SysWOW64`_, which is the 32-bit version.<br><br>
 However, the presence of both executables is normal Windows behavior and does not indicate malicious activity by itself.
@@ -91,7 +91,7 @@ index="aa15cbf9"
     | sort - _time
 ```
 
-![PowerShell process creation events](<assets/case-studies/Hunting PowerShell Execution Artifacts/3.png>)
+![PowerShell process creation events](<assets/investigations/Hunting PowerShell Execution Artifacts/3.png>)
 
 At first look, I noticed a process named _`CompatTelRunner.exe`_. Its _`ParentCommandLine`_ showed:
 
@@ -101,7 +101,7 @@ powershell.exe -ExecutionPolicy Restricted -Command
 To better understand this process and determine whether its execution is legitimate or suspicious, 
 I started researching it using **[EchoTrail](https://echotrail.io/)** to examine its typical behavior and execution context.
 
-![EchoTrail](<assets/case-studies/Hunting PowerShell Execution Artifacts/4.png>)
+![EchoTrail](<assets/investigations/Hunting PowerShell Execution Artifacts/4.png>)
 We can't classify _`CompatTelRunner.exe`_ as malicious yet. It is a legitimate Windows Compatibility Telemetry component. <br>
 
 However, while reviewing the query results, I noticed something more suspicious.<br>
@@ -133,7 +133,7 @@ index="aa15cbf9"
     | where Not like(Payload, "%.inf%")
     | stats count by Payload
 ```
-![PowerShell module logging payload](<assets/case-studies/Hunting PowerShell Execution Artifacts/5.png>)
+![PowerShell module logging payload](<assets/investigations/Hunting PowerShell Execution Artifacts/5.png>)
 
 The event confirmed that _`Invoke-WebRequest`_ was invoked with a URL pointing to _`http://10[.]0[.]2[.]6/dghelper.dll`_ and an output path of _`C:\Windows\System32\dghelper.dll`_. <br>
 This supports the previous finding and gives us pivot points, so we need some questions:
@@ -156,7 +156,7 @@ index="aa15cbf9"
     | table _time Computer SourceIp SourcePort DestinationIp DestinationPort  Protocol 
     | sort _time
 ```
-![Network connections to 10.0.2.6](<assets/case-studies/Hunting PowerShell Execution Artifacts/7.png>)
+![Network connections to 10.0.2.6](<assets/investigations/Hunting PowerShell Execution Artifacts/7.png>)
 
 There is no evidence of other victim machines communicating with _`10.0.2.6`_ in the available telemetry. The only observed communication was from _`10.0.2.7`_.
 
@@ -170,7 +170,7 @@ index="aa15cbf9" `
     | sort _time
 ```
 
-![dghelper.dll file creation event](<assets/case-studies/Hunting PowerShell Execution Artifacts/6.png>)
+![dghelper.dll file creation event](<assets/investigations/Hunting PowerShell Execution Artifacts/6.png>)
 
 At **2025-06-11 22:29:50** _`dghelper.dll`_ was created in  _`C:\Windows\SysWOW64\dghelper.dll`_ on _`WKS-4F1D.avongate.local`_.
 under _`NT AUTHORITY\SYSTEM`_ account wtich indicates high privileges. 
@@ -186,15 +186,15 @@ index="aa15cbf9"
     | table _time host user Image CommandLine MD5
     | sort - _time
 ```
-![certutil downloading mimi.exe](<assets/case-studies/Hunting PowerShell Execution Artifacts/8.png>)
+![certutil downloading mimi.exe](<assets/investigations/Hunting PowerShell Execution Artifacts/8.png>)
 
 It seems that the adversary used _`certutil.exe`_ to retrieve _`mimi.exe`_ from _`10.0.2.6`_ over HTTP and save it to _`C:\Windows\System32\mimi.exe`_. <br>
 I also obtained the hash value of _`mimi.exe`_ to start the intelligence investigation. <br>
 
-![mimi.exe hash value](<assets/case-studies/Hunting PowerShell Execution Artifacts/9.png>)
+![mimi.exe hash value](<assets/investigations/Hunting PowerShell Execution Artifacts/9.png>)
 Searching the MD5 _`29efd64dd3c7fe1e2b022b7ad73a1ba5`_ on **[Virustotal](https://www.virustotal.com/gui/home/upload)** returned a malicious verdict.
 
-![VirusTotal result for mimi.exe](<assets/case-studies/Hunting PowerShell Execution Artifacts/10.png>)
+![VirusTotal result for mimi.exe](<assets/investigations/Hunting PowerShell Execution Artifacts/10.png>)
 
 **[Virustotal](https://www.virustotal.com/gui/home/upload)** identified the file as _`mimikatz.exe`_, a tool commonly associated with credential dumping. 
 
@@ -210,7 +210,7 @@ index="aa15cbf9"
     | table _time host user Image CommandLine
     | sort - _time
 ```
-![Child processes of PID 3916](<assets/case-studies/Hunting PowerShell Execution Artifacts/11.png>)
+![Child processes of PID 3916](<assets/investigations/Hunting PowerShell Execution Artifacts/11.png>)
 
 Now, things are getting interesting! A lot of suspicious activity is happening here. <br><br>
 
@@ -225,7 +225,7 @@ index="aa15cbf9"
     | table _time, Image, ParentImage
     | sort - _time
 ```
-![Parent process of PID 3916](<assets/case-studies/Hunting PowerShell Execution Artifacts/12.png>)
+![Parent process of PID 3916](<assets/investigations/Hunting PowerShell Execution Artifacts/12.png>)
 
 PID _`3916`_ belongs to _`cmd.exe`_, and its `ParentImage` points to a suspicious executable named _`C:\Windows\THybZSNv.exe`_.
 
@@ -243,12 +243,12 @@ index="aa15cbf9"
     | sort - _time
 ```
 
-![THybZSNv.exe process creation](<assets/case-studies/Hunting PowerShell Execution Artifacts/13.png>)
+![THybZSNv.exe process creation](<assets/investigations/Hunting PowerShell Execution Artifacts/13.png>)
 
 Now it's clear that _`THybZSNv.exe`_ is a suspicious executable running as a Windows service from _`C:\Windows\THybZSNv.exe`_, launched by _`services.exe`_. <br><br>
 Its MD5 is _`6983f7001de10f4d19fc2d794c3eb534`_, and the analysis also flagged the file as malicious.
 
-![VirusTotal result for THybZSNv.exe](<assets/case-studies/Hunting PowerShell Execution Artifacts/15.png>)
+![VirusTotal result for THybZSNv.exe](<assets/investigations/Hunting PowerShell Execution Artifacts/15.png>)
 
 To find the service name that runs this file, we examine Event ID _`7045`_, which is generated when a new service is installed.
 
@@ -257,7 +257,7 @@ index="aa15cbf9" EventCode=7045
 | table _time ServiceName ImagePath ProcessID
 ```
 
-![Service installation event 7045](<assets/case-studies/Hunting PowerShell Execution Artifacts/14.png>)
+![Service installation event 7045](<assets/investigations/Hunting PowerShell Execution Artifacts/14.png>)
 
 The service name is _`PtQC`_, with the executable path _`%SystemRoot%\THybZSNv.exe`_ and _`PID 728`_.
 
@@ -280,7 +280,7 @@ index="aa15cbf9"
     | table tree
 
 ```
-![PStree output for THybZSNv.exe](<assets/case-studies/Hunting PowerShell Execution Artifacts/16.png>)
+![PStree output for THybZSNv.exe](<assets/investigations/Hunting PowerShell Execution Artifacts/16.png>)
 
 This completes the first stage of the investigation: the process execution chain is established, the suspicious activities are identified, and the execution timeline is reconstructed.<br><br>
 In the next stages, we will investigate the identified activities across the Discovery, Defense Evasion, and Persistence tactics. Command and Control (C2) will be covered in a separate case study.

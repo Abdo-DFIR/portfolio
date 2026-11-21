@@ -76,7 +76,7 @@ if (launch) {
   if (/beta build/i.test(cfg.footerNote || '')) todo.push('Change or clear "footerNote" (it still says "Beta build").');
   if (!site) todo.push('Set "siteUrl" (your public address) so the sitemap, canonical links and share image work.');
   const samples = [];
-  for (const dir of ['case-studies', 'ctfs', 'write-ups']) {
+  for (const dir of ['investigations', 'ctfs']) {
     const d = path.join(ROOT, 'content', dir);
     if (!fs.existsSync(d)) continue;
     for (const f of fs.readdirSync(d).filter((x) => x.endsWith('.md'))) {

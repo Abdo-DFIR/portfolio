@@ -18,7 +18,7 @@ Needs Node 18 or newer.
 
 1. **`site.config.json`**: name, role, brand, intro, focus, tools, status, email, links, skills, certifications, training. This fills the home page, header, Skills, Certifications and Contact. Set `"brand"` to change the text beside the header icon; the `@` separates the two parts and is styled in the accent color.
 2. **`content/about.md`**: your About page.
-3. **`content/case-studies/`, `content/ctfs/` and `content/write-ups/`**: write-ups and other Markdown entries. Replace the samples or delete them.
+3. **`content/investigations/` and `content/ctfs/`**: investigation and challenge Markdown entries. Replace the samples or delete them.
 4. **Settings to change at launch** (in `site.config.json`):
    - `"siteUrl"`: your public address, for example `"https://username.github.io/"`. Turns on the sitemap, canonical links and the share image. You can also set it with the `SITE_URL` environment variable.
    - `"showSampleNotes"`: set to `false` once the samples are gone.
@@ -33,11 +33,11 @@ Needs Node 18 or newer.
 
 Run `npm run preview` from the project folder. It builds the site and serves it starting at `http://localhost:4173`; if that port is already in use, it tries the next 20 ports and prints the address it selected. To choose a different starting port, run `npm run preview -- --port 5000`. Unknown URLs show the custom 404 page. Keep that terminal open while you work. The preview watches `content/`, `src/` and `site.config.json`, rebuilds when they change, and automatically refreshes the browser.
 
-On the Case studies, CTFs and Write-ups pages, selecting a tag updates the URL. Use **Copy filtered link** to share that category selection; opening the link restores the selected tag.
+On the Investigations and CTFs pages, selecting a tag updates the URL. Use **Copy filtered link** to share that category selection; opening the link restores the selected tag.
 
-## Add a write-up
+## Add an investigation
 
-Create a file in `content/write-ups/` (or `content/case-studies/` for a full investigation, or `content/ctfs/` for a CTF challenge):
+Create a file in `content/investigations/` for an investigation or `content/ctfs/` for a CTF challenge:
 
 ```markdown
 ---
@@ -80,7 +80,7 @@ $ command that starts with a dollar sign gets a prompt
 ![Alt text](assets/my-screenshot.png "Caption shown under the image")
 ````
 
-Put images in `content/assets/`. Link to another page of your own site with a leading slash, for example `[About](/about.html)` or `[My other case](/case-studies/my-case/)`; without the slash the link breaks, and `npm run check` will tell you. Case studies, CTFs and write-ups are published at extensionless URLs such as `/case-studies/my-case/`. Tables, lists, links and `inline code` work as usual. Arabic and other right-to-left text lines up correctly paragraph by paragraph.
+Put images in `content/assets/`. Link to another page of your own site with a leading slash, for example `[About](/about.html)` or `[My other investigation](/investigations/my-investigation/)`; without the slash the link breaks, and `npm run check` will tell you. Investigations and CTFs are published at extensionless URLs such as `/investigations/my-investigation/`. Tables, lists, links and `inline code` work as usual. Arabic and other right-to-left text lines up correctly paragraph by paragraph.
 
 ## Deploy for free
 

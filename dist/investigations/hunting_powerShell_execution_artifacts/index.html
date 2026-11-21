@@ -20,7 +20,7 @@
 <header class="bar">
   <div class="wrap bar-in">
     <a class="logo" href="../../index.html"><img class="logo-icon" src="../../favicon.svg" alt="">Abd0_M0<span>@</span>dfir</a>
-    <nav id="nav" aria-label="Main"><a href="../../index.html">Home</a><a href="../../case-studies/index.html" aria-current="page">Case Studies</a><a href="../../ctfs/index.html">CTFs</a><a href="../../write-ups/index.html">Write-ups</a><a href="../../about.html">About</a><a href="../../contact.html">Contact</a></nav>
+    <nav id="nav" aria-label="Main"><a href="../../index.html">Home</a><a href="../../investigations/index.html" aria-current="page">Investigations</a><a href="../../ctfs/index.html">CTFs</a><a href="../../about.html">About</a><a href="../../contact.html">Contact</a></nav>
     <div class="tools">
       <button class="icon-btn" id="theme" type="button" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor"/></svg></button>
       <button class="icon-btn menu-btn" id="menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
@@ -30,7 +30,7 @@
 <main id="main">
 <article>
 <section class="arthead"><div class="wrap">
-  <a class="crumb" href="../../case-studies/index.html">← Case studies</a>
+  <a class="crumb" href="../../investigations/index.html">← Investigations</a>
   <div class="kicker"><span class="cat">Threat Hunting</span><time datetime="2026-11-09">Nov 2026</time><span>11 min read</span><span>Lab Scenario: SOC 201 Course From TCM Security.</span></div>
   <h1>Hunting Suspicious Command Execution Artifacts</h1>
   <p class="summary">A threat-hunting investigation using Splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities.</p>
@@ -85,7 +85,7 @@ The investigation focused on tracing the source of the activity, analyzing relat
 <h3 id="stage-1-initial-investigating-powershell-downloading-a-dll">Stage 1: Initial investigating, PowerShell downloading a DLL</h3>
 <p>First, we identify the available data sources within our Splunk indexes using the following SPL query:</p>
 <div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>| metadata type=sources index=*</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/1.png" alt="Available data sources in Splunk" loading="lazy" width="1062" height="325"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/1.png" alt="Available data sources in Splunk" loading="lazy" width="1062" height="325"></figure>
 <p>Since Sysmon telemetry is available in our environment, we will focus our investigation on Sysmon events.</p>
 <p>We begin by examining <em><code>powershell.exe</code></em> using Sysmon <em><code>Event ID 1</code></em> (Process Creation), which records newly created processes and provides details about the image using the following query.</p>
 <div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot; 
@@ -93,7 +93,7 @@ The investigation focused on tracing the source of the activity, analyzing relat
     EventID=1 
     Image=*\\powershell.exe*
     | stats count by Image</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/2.png" alt="powershell.exe image paths" loading="lazy" width="858" height="138"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/2.png" alt="powershell.exe image paths" loading="lazy" width="858" height="138"></figure>
 <p>We identified two different paths for <em><code>powershell.exe</code></em>: one located in <em><code>C:\Windows\System32</code></em>, which is the native 64-bit version, and another in <em><code>C:\Windows\SysWOW64</code></em>, which is the 32-bit version.<br><br>
 However, the presence of both executables is normal Windows behavior and does not indicate malicious activity by itself.</p>
 <p>To get a clearer picture of PowerShell execution, we filter Sysmon <em><code>Event ID 1</code></em> events and examine the timestamp, user, executable path, parent process, and command-line arguments.</p>
@@ -103,12 +103,12 @@ However, the presence of both executables is normal Windows behavior and does no
     Image=*\\powershell.exe*
     | table _time, user, Image, ParentImage, CommandLine, ParentCommandLine
     | sort - _time</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/3.png" alt="PowerShell process creation events" loading="lazy" width="1867" height="456"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/3.png" alt="PowerShell process creation events" loading="lazy" width="1867" height="456"></figure>
 <p>At first look, I noticed a process named <em><code>CompatTelRunner.exe</code></em>. Its <em><code>ParentCommandLine</code></em> showed:</p>
 <div class="code"><div class="cap"><span>bash</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>powershell.exe -ExecutionPolicy Restricted -Command</code></pre></div>
 <p>To better understand this process and determine whether its execution is legitimate or suspicious, 
 I started researching it using <strong><a href="https://echotrail.io/" target="_blank" rel="noopener noreferrer">EchoTrail</a></strong> to examine its typical behavior and execution context.</p>
-<p><figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/4.png" alt="EchoTrail" loading="lazy" width="1159" height="494"></figure>
+<p><figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/4.png" alt="EchoTrail" loading="lazy" width="1159" height="494"></figure>
 We can&#39;t classify <em><code>CompatTelRunner.exe</code></em> as malicious yet. It is a legitimate Windows Compatibility Telemetry component. <br></p>
 <p>However, while reviewing the query results, I noticed something more suspicious.<br></p>
 <p>While reviewing the same results, something more suspicious appeared. The 32-bit instance running from <em><code>C:\Windows\SysWOW64</code></em> had an unusual command line:</p>
@@ -130,7 +130,7 @@ which records PowerShell command invocations and their bound parameters.</p>
     EventID=4103
     | where Not like(Payload, &quot;%.inf%&quot;)
     | stats count by Payload</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/5.png" alt="PowerShell module logging payload" loading="lazy" width="1859" height="156"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/5.png" alt="PowerShell module logging payload" loading="lazy" width="1859" height="156"></figure>
 <p>The event confirmed that <em><code>Invoke-WebRequest</code></em> was invoked with a URL pointing to <em><code>http://10[.]0[.]2[.]6/dghelper.dll</code></em> and an output path of <em><code>C:\Windows\System32\dghelper.dll</code></em>. <br>
 This supports the previous finding and gives us pivot points, so we need some questions:</p>
 <ul>
@@ -148,7 +148,7 @@ This supports the previous finding and gives us pivot points, so we need some qu
     &quot;10.0.2.6&quot; 
     | table _time Computer SourceIp SourcePort DestinationIp DestinationPort  Protocol 
     | sort _time</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/7.png" alt="Network connections to 10.0.2.6" loading="lazy" width="1847" height="143"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/7.png" alt="Network connections to 10.0.2.6" loading="lazy" width="1847" height="143"></figure>
 <p>There is no evidence of other victim machines communicating with <em><code>10.0.2.6</code></em> in the available telemetry. The only observed communication was from <em><code>10.0.2.7</code></em>.</p>
 <p>Next, we need to determine when <em><code>dghelper.dll</code></em> was created, which computer it was created on, and under which user account.</p>
 <div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot; `
@@ -156,7 +156,7 @@ This supports the previous finding and gives us pivot points, so we need some qu
     TargetFilename=&quot;*\\dghelper.dll&quot;
     | table _time Computer User Image TargetFilename
     | sort _time</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/6.png" alt="dghelper.dll file creation event" loading="lazy" width="1788" height="78"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/6.png" alt="dghelper.dll file creation event" loading="lazy" width="1788" height="78"></figure>
 <p>At <strong>2025-06-11 22:29:50</strong> <em><code>dghelper.dll</code></em> was created in  <em><code>C:\Windows\SysWOW64\dghelper.dll</code></em> on <em><code>WKS-4F1D.avongate.local</code></em>.
 under <em><code>NT AUTHORITY\SYSTEM</code></em> account wtich indicates high privileges. </p>
 <hr>
@@ -167,12 +167,12 @@ under <em><code>NT AUTHORITY\SYSTEM</code></em> account wtich indicates high pri
     EventID=1 &quot;10.0.2.6&quot;
     | table _time host user Image CommandLine MD5
     | sort - _time</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/8.png" alt="certutil downloading mimi.exe" loading="lazy" width="1760" height="178"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/8.png" alt="certutil downloading mimi.exe" loading="lazy" width="1760" height="178"></figure>
 <p>It seems that the adversary used <em><code>certutil.exe</code></em> to retrieve <em><code>mimi.exe</code></em> from <em><code>10.0.2.6</code></em> over HTTP and save it to <em><code>C:\Windows\System32\mimi.exe</code></em>. <br>
 I also obtained the hash value of <em><code>mimi.exe</code></em> to start the intelligence investigation. <br></p>
-<p><figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/9.png" alt="mimi.exe hash value" loading="lazy" width="875" height="163"></figure>
+<p><figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/9.png" alt="mimi.exe hash value" loading="lazy" width="875" height="163"></figure>
 Searching the MD5 <em><code>29efd64dd3c7fe1e2b022b7ad73a1ba5</code></em> on <strong><a href="https://www.virustotal.com/gui/home/upload" target="_blank" rel="noopener noreferrer">Virustotal</a></strong> returned a malicious verdict.</p>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/10.png" alt="VirusTotal result for mimi.exe" loading="lazy" width="800" height="174"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/10.png" alt="VirusTotal result for mimi.exe" loading="lazy" width="800" height="174"></figure>
 <p><strong><a href="https://www.virustotal.com/gui/home/upload" target="_blank" rel="noopener noreferrer">Virustotal</a></strong> identified the file as <em><code>mimikatz.exe</code></em>, a tool commonly associated with credential dumping. </p>
 <hr>
 <h3 id="stage-4-root-cause-tracing-the-parent-chain">Stage 4: Root cause, tracing the parent chain</h3>
@@ -182,7 +182,7 @@ Searching the MD5 <em><code>29efd64dd3c7fe1e2b022b7ad73a1ba5</code></em> on <str
     ParentProcessId=3916
     | table _time host user Image CommandLine
     | sort - _time</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/11.png" alt="Child processes of PID 3916" loading="lazy" width="1812" height="646"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/11.png" alt="Child processes of PID 3916" loading="lazy" width="1812" height="646"></figure>
 <p>Now, things are getting interesting! A lot of suspicious activity is happening here. <br><br></p>
 <p>Multiple suspicious activities have been identified, including Discovery, Defense Evasion, Persistence, and Command and Control (C2). 
 Each tactic will be investigated in depth in a dedicated case study post.</p>
@@ -192,7 +192,7 @@ Each tactic will be investigated in depth in a dedicated case study post.</p>
     ProcessId=3916
     | table _time, Image, ParentImage
     | sort - _time</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/12.png" alt="Parent process of PID 3916" loading="lazy" width="1508" height="83"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/12.png" alt="Parent process of PID 3916" loading="lazy" width="1508" height="83"></figure>
 <p>PID <em><code>3916</code></em> belongs to <em><code>cmd.exe</code></em>, and its <code>ParentImage</code> points to a suspicious executable named <em><code>C:\Windows\THybZSNv.exe</code></em>.</p>
 <hr>
 <h3 id="stage-5-the-service-behind-the-executable">Stage 5: The service behind the executable</h3>
@@ -203,14 +203,14 @@ Each tactic will be investigated in depth in a dedicated case study post.</p>
     Image=&quot;C:\\Windows\\THybZSNv.exe&quot;
     | table _time, host, user, Image, ParentImage, CommandLine, ParentCommandLine
     | sort - _time</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/13.png" alt="THybZSNv.exe process creation" loading="lazy" width="1845" height="131"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/13.png" alt="THybZSNv.exe process creation" loading="lazy" width="1845" height="131"></figure>
 <p>Now it&#39;s clear that <em><code>THybZSNv.exe</code></em> is a suspicious executable running as a Windows service from <em><code>C:\Windows\THybZSNv.exe</code></em>, launched by <em><code>services.exe</code></em>. <br><br>
 Its MD5 is <em><code>6983f7001de10f4d19fc2d794c3eb534</code></em>, and the analysis also flagged the file as malicious.</p>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/15.png" alt="VirusTotal result for THybZSNv.exe" loading="lazy" width="1061" height="193"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/15.png" alt="VirusTotal result for THybZSNv.exe" loading="lazy" width="1061" height="193"></figure>
 <p>To find the service name that runs this file, we examine Event ID <em><code>7045</code></em>, which is generated when a new service is installed.</p>
 <div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot; EventCode=7045
 | table _time ServiceName ImagePath ProcessID</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/14.png" alt="Service installation event 7045" loading="lazy" width="1128" height="91"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/14.png" alt="Service installation event 7045" loading="lazy" width="1128" height="91"></figure>
 <p>The service name is <em><code>PtQC</code></em>, with the executable path <em><code>%SystemRoot%\THybZSNv.exe</code></em> and <em><code>PID 728</code></em>.</p>
 <hr>
 <h3 id="stage-6-rebuilding-the-process-tree">Stage 6: Rebuilding the process tree</h3>
@@ -226,7 +226,7 @@ Its MD5 is <em><code>6983f7001de10f4d19fc2d794c3eb534</code></em>, and the analy
     | pstree child=child parent=parent detail=detail spaces=50
     | search tree=&quot;*THybZSNv.exe&quot;
     | table tree</code></pre></div>
-<figure><img src="../../assets/case-studies/Hunting PowerShell Execution Artifacts/16.png" alt="PStree output for THybZSNv.exe" loading="lazy" width="1875" height="550"></figure>
+<figure><img src="../../assets/investigations/Hunting PowerShell Execution Artifacts/16.png" alt="PStree output for THybZSNv.exe" loading="lazy" width="1875" height="550"></figure>
 <p>This completes the first stage of the investigation: the process execution chain is established, the suspicious activities are identified, and the execution timeline is reconstructed.<br><br>
 In the next stages, we will investigate the identified activities across the Discovery, Defense Evasion, and Persistence tactics. Command and Control (C2) will be covered in a separate case study.</p>
 <h2 id="reconstructed-process-execution-tree">Reconstructed Process Execution Tree</h2>
@@ -396,12 +396,12 @@ In the next stages, we will investigate the identified activities across the Dis
 </div></div>
 </article>
 <section class="more"><div class="wrap">
-  <div class="head"><h2 class="sec-title">More case studies</h2><a class="more-link" href="../../case-studies/index.html">See all →</a></div>
-  <div class="list"><a class="row" href="../../case-studies/hunting_persistence_artifacts/" data-tags="Threat Hunting,Windows Registry,Persistence" data-text="hunting registry run key persistence a threat-hunting investigation using splunk to identify suspicious registry run key modifications and potential persistence activity. threat hunting threat hunting windows registry persistence splunk spl sysmon mitre att&amp;ck t1547 t1547.001 car-2013-01-002">
+  <div class="head"><h2 class="sec-title">More investigations</h2><a class="more-link" href="../../investigations/index.html">See all →</a></div>
+  <div class="list"><a class="row" href="../../investigations/hunting_persistence_artifacts/" data-tags="Threat Hunting,Windows Registry,Persistence" data-text="hunting registry run key persistence a threat-hunting investigation using splunk to identify suspicious registry run key modifications and potential persistence activity. threat hunting threat hunting windows registry persistence splunk spl sysmon mitre att&amp;ck t1547 t1547.001 car-2013-01-002">
   <time datetime="2026-11-17">Nov 2026</time>
   <span class="t"><strong>Hunting Registry Run Key Persistence</strong><span>A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.</span></span>
   <span class="cat">Threat Hunting</span>
-</a><a class="row" href="../../case-studies/hunting_defense_evasion_artifacts/" data-tags="Threat Hunting,Suspicious Execution,Defense Evasion" data-text="hunting defense evasion artifacts a threat-hunting investigation using splunk to identify suspicious defense evasion techniques on windwos endpoint. threat hunting threat hunting suspicious execution defense evasion splunk spl sysmon powershell mitre att&amp;ck tt1685.005 car-2021-01-003">
+</a><a class="row" href="../../investigations/hunting_defense_evasion_artifacts/" data-tags="Threat Hunting,Suspicious Execution,Defense Evasion" data-text="hunting defense evasion artifacts a threat-hunting investigation using splunk to identify suspicious defense evasion techniques on windwos endpoint. threat hunting threat hunting suspicious execution defense evasion splunk spl sysmon powershell mitre att&amp;ck tt1685.005 car-2021-01-003">
   <time datetime="2026-11-14">Nov 2026</time>
   <span class="t"><strong>Hunting Defense Evasion Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious defense evasion techniques on Windwos endpoint.</span></span>
   <span class="cat">Threat Hunting</span>

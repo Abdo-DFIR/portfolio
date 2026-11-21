@@ -43,8 +43,23 @@ vcxv
 
 
 ##  Hunting & Analysis
-**The hunt moves through ... stages:**
+During the previous investigation, we identified suspicious Registry Run key modifications that could indicate potential persistence activity.
 
+---
+
+### Stage 1: Identifying Suspicious Registry Modifications
+According to MITRE ATT&CK technique T1547.001, Registry Run keys and Startup folders can be abused to achieve persistence.
+![Registery Run Paths](<assets/investigations/Hunting Registry Run Key Persistence/1.png>)
+We searched `Sysmon Event ID 13` for changes to Registry Run keys to identify suspicious modifications that could allow programs to execute automatically during system startup or user logon.
+```SPL
+index="aa15cbf9"
+    source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+    EventID=13
+    TargetObject="*\\Software\\Microsoft\\Windows\\CurrentVersion\\Run*"
+    | table _time, Computer, User, TargetObject, Details, Image, ProcessGuid
+    | sort - _time
+```
+![Registery Run Paths](<assets/investigations/Hunting Registry Run Key persistence/2.png>)
 
 
 ## Reconstructed Process Execution Tree
