@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://abdo-dfir.github.io/portfolio/</loc></url>
+  <url><loc>https://abdo-dfir.github.io/portfolio/investigations/index.html</loc></url>
+  <url><loc>https://abdo-dfir.github.io/portfolio/ctfs/index.html</loc></url>
+  <url><loc>https://abdo-dfir.github.io/portfolio/investigations/hunting_persistence_artifacts/</loc><lastmod>2026-11-17</lastmod></url>
+  <url><loc>https://abdo-dfir.github.io/portfolio/investigations/hunting_defense_evasion_artifacts/</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://abdo-dfir.github.io/portfolio/investigations/hunting_powerShell_execution_artifacts/</loc><lastmod>2026-11-09</lastmod></url>
+  <url><loc>https://abdo-dfir.github.io/portfolio/about.html</loc></url>
+  <url><loc>https://abdo-dfir.github.io/portfolio/contact.html</loc></url>
+</urlset>
