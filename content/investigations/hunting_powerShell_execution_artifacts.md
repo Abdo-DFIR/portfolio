@@ -352,7 +352,7 @@ services.exe (PID 728)
 - **`10.0.2.6` is unidentified.** Only `10.0.2.7` was seen communicating with it in the available telemetry.
 - **`dghelper.dll` was not analyzed.** Its hash and behavior are still unknown, so its role beyond the persistence command is unconfirmed.
 - **Credential theft is unverified.** `mimi.exe` executed, but no evidence was reviewed of what it accessed.
-- **Further investigation is required.** Subsequent posts will examine the identified Discovery, Persistence, Defense Evasion, and Command and Control (C2) activities in greater detail.
+- **Further investigation is needed** to understand the identified Discovery, Persistence, Defense Evasion, and C2 activities.
 
 ## Response actions
 1. Isolate the compromised workstation.

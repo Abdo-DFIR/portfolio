@@ -91,6 +91,8 @@ I created a CSV lookup file containing Registry paths associated with persistenc
 7. Click Save.
 </details>
 
+<br>
+
 We can now reference the uploaded CSV filename directly in our Splunk query using the `lookup` command.<br><br>
 
 I also used **[Lookup Definitions](https://docs.splunk.com/Splexicon:Lookupdefinition?_gl=1*6ssuny*_gcl_au*NjQ5NjU4OTcyLjE3OTMyMDU4MTI.*FPAU*NjQ5NjU4OTcyLjE3OTMyMDU4MTI.*_ga*MTA0MDgyNzQ1LjE3OTMyMDU4MTI.*_ga_5EPM2P39FV*czE3OTUyOTAxNzMkbzE4JGcwJHQxNzk1MjkwMTczJGo2MCRsMCRoMTMyNTc4MDM4MA..*_fplc*cE1SVmxMWnVON1FCUiUyRnlrUzk1YW1Ub2l3NHY4b0VUQWlFTE5ScWNFJTJCMk9LR2pUckFZNDhhVTJSaEglMkZuJTJCeDRPZG5uNWdFMlVSNG1aM3JwTlIlMkJDM0F5REhMZUolMkZ5OUlGQWVTVXY3Mng3aDZRakwlMkY3OXhHcWZhbW9FSndZU2clM0QlM0Q.)**
