@@ -14,7 +14,11 @@ The investigation focuses on identifying **suspicious modifications to Windows R
 
 ## Key Findings
 :::callout Key Findings
-vcxv
+- A suspicious Registry Run key value named `Updater` was created under `HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run`.
+- The entry was configured to execute `dghelper.dll` using `rundll32`.
+- The Registry modification was performed by `reg.exe` under the SYSTEM account.
+- The autostart mechanism was configured, but its execution was not confirmed.
+- The event was launched by `cmd.exe`, whose parent was the previously identified malicious file `C:\Windows\THybZSNv.exe`.
 :::
 
 ## Environment & Tools
@@ -73,7 +77,11 @@ I created a CSV lookup file containing Registry paths associated with persistenc
 | `HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run\*` | T1547.001 | Machine policy-based Run key |
 </details>
 
-#### Steps to Create the Lookup Table
+<br>
+
+<details>
+<summary>Steps to Create the Lookup Table</summary>
+
 1. Navigate to `Settings` > `Lookups`.
 2. Open the Lookup table files section.
 3. Click `New Lookup Table File`.
@@ -81,6 +89,7 @@ I created a CSV lookup file containing Registry paths associated with persistenc
 5. Click Choose File and upload the CSV file.
 6. Enter the destination filename, ending in .csv.
 7. Click Save.
+</details>
 
 We can now reference the uploaded CSV filename directly in our Splunk query using the `lookup` command.<br><br>
 
@@ -123,7 +132,7 @@ This finding will be examined further by investigating the process responsible f
 ---
 
 ### Stage 3: Tracing the Execution of the Persistence Entry
-I started by searching for `dghelper.dll` across Sysmon Process Creation events to identify related process activity.
+To investigate how the persistence entry was introduced, I searched Sysmon Process Creation events (Event ID 1) for references to `dghelper.dll`. 
 ```SPL
 index="aa15cbf9" 
     source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" 
@@ -131,24 +140,64 @@ index="aa15cbf9"
     | table _time, Computer, User, Image, CommandLine, ParentCommandLine
     | sort - _time
 ```
+![Tracing the execution](<assets/investigations/Hunting Registry Run Key Persistence/2.png>)
+The results revealed a PowerShell command that downloaded the DLL from `10.0.2.6` and saved it to `C:\Windows\System32`.<br>
+Shortly after, `reg.exe` added the `Updater` value to the Registry Run key, configuring the DLL to execute through `rundll32`.<br><br> 
+Both events showed `cmd.exe` as the parent command line, indicating that both `PowerShell` and `reg.exe` were launched by a command prompt process.
+
+I also investigated the related PIDs and PPIDs to identify the parent-child process relationships and reconstruct the execution chain.
+
+![Process execution](<assets/investigations/Hunting Registry Run Key Persistence/3.png>)
+At this point, we reached the same finding discussed in the previous investigation: `cmd.exe (PID 3916)` was responsible for launching several suspicious commands.<br>
+As established in the previous investigation, its parent process was the suspicious executable `C:\Windows\THybZSNv.exe`.<br><br>
+
+Since the execution chain and the activities originating from this process were already examined in the **[previous investigation](https://abdo-dfir.github.io/portfolio/investigations/hunting_powerShell_execution_artifacts/)**.
+
 
 ## Reconstructed Process Execution Trees
-
-## Timeline
-:::timeline
-:::
-
+```
+services.exe (PID 728)
+└── THybZSNv.exe (PID 10228)
+    └── cmd.exe (PID 3916)
+        ├── powershell.exe (PID 2748)
+        │   └── Downloads dghelper.dll
+        └── reg.exe (PID 2256)
+            └── Creates the Updater Run key
+```
 ## MITRE ATT&CK Mapping
 | Observed Activity | Tactic | Technique |
 |---|---|---|
+| Creating a Registry Run key to execute the DLL at startup/logon | Persistence | [T1547.001 – Registry Run Keys / Startup Folder](https://attack.mitre.org/techniques/T1547/001/) |
+
+
+## Timeline
+:::timeline
+2025-06-11 22:29:46 | PowerShell downloads `dghelper.dll` from `10.0.2.6`.
+2025-06-11 22:29:50 | Sysmon Event ID 11 records the creation of `dghelper.dll`.
+2025-06-11 22:30:38 | `reg.exe` creates the `Updater` value under the Registry Run key, configuring `rundll32` to load the DLL.
+:::
 
 
 ## Indicators of Compromise
+
 | Type | Value | Notes |
 |---|---|---|
-
+| Host | `WKS-4F1D.avongate.local` | Affected workstation |
+| Registry Key | `HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run` | Machine-wide persistence location |
+| Registry Value | `Updater` | Suspicious autostart value |
+| Registry Data | `rundll32 C:\Windows\System32\dghelper.dll,MainFunc` | Command configured to execute at startup/logon |
+| File Path | `C:\Windows\System32\dghelper.dll` | DLL referenced by the persistence entry |
 
 ## Response actions
-
+- Remove the malicious Updater value from the Registry Run key to prevent the DLL from being launched at subsequent logons.
+- Isolate the affected host, from the network for further investigation.
+- Preserve a copy of `dghelper.dll` for further analysis before deleting it.
+- Perform a full endpoint scan to identify additional malicious files, persistence mechanisms, or signs of compromise.
+- Review related security logs and monitor for any further suspicious activity.
 
 ## Conclusion
+- The investigation identified a malicious Registry Run key entry used to establish persistence `HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run` on `WKS-4F1D.avongate.local`. 
+- The entry was created by `reg.exe` under the `NT AUTHORITY\SYSTEM` account and configured to execute `dghelper.dll` through `rundll32` at startup or logon.
+- The Registry Run key was successfully created, but there is no evidence that the autostart mechanism worked or that `dghelper.dll` was executed through it.
+- The investigation also linked the DLL download and Registry modification to the previously identified malicious executable `C:\Windows\THybZSNv.exe`, which initiated the activity through `cmd.exe`.
+

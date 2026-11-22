@@ -36,18 +36,24 @@
 <article>
 <section class="arthead"><div class="wrap">
   <a class="crumb" href="../../investigations/index.html">← Investigations</a>
-  <div class="kicker"><span class="cat">Threat Hunting</span><time datetime="2026-11-17">Nov 2026</time><span>4 min read</span><span>Lab Scenario: SOC 201 Course From TCM Security.</span></div>
+  <div class="kicker"><span class="cat">Threat Hunting</span><time datetime="2026-11-17">Nov 2026</time><span>6 min read</span><span>Lab Scenario: SOC 201 Course From TCM Security.</span></div>
   <h1>Hunting Registry Run Key Persistence</h1>
   <p class="summary">A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.</p>
   <div class="tags"><span class="tag">Splunk</span><span class="tag">SPL</span><span class="tag">Sysmon</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag att">T1547</span><span class="tag att">T1547.001</span><span class="tag att">CAR-2013-01-002</span></div>
 </div></section>
 <div class="layout"><div class="wrap">
-  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#hunting-overview">Hunting Overview</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-trees">Reconstructed Process Execution Trees</a></li><li><a href="#timeline">Timeline</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#indicators-of-compromise">Indicators of Compromise</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
+  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#hunting-overview">Hunting Overview</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-trees">Reconstructed Process Execution Trees</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#timeline">Timeline</a></li><li><a href="#indicators-of-compromise">Indicators of Compromise</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
   <div class="prose"><h2 id="scenario">Scenario</h2>
 <p>Following the previous investigations, the SOC team initiated a new threat-hunting investigation to examine potential <strong>persistence mechanisms</strong>.
 The investigation focuses on identifying <strong>suspicious modifications to Windows Registry Run keys and Startup entries</strong> that could allow an attacker to maintain persistence.</p>
 <h2 id="key-findings">Key Findings</h2>
-<div class="callout"><span class="callout-label">Key Findings</span><p>vcxv</p>
+<div class="callout"><span class="callout-label">Key Findings</span><ul>
+<li>A suspicious Registry Run key value named <code>Updater</code> was created under <code>HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run</code>.</li>
+<li>The entry was configured to execute <code>dghelper.dll</code> using <code>rundll32</code>.</li>
+<li>The Registry modification was performed by <code>reg.exe</code> under the SYSTEM account.</li>
+<li>The autostart mechanism was configured, but its execution was not confirmed.</li>
+<li>The event was launched by <code>cmd.exe</code>, whose parent was the previously identified malicious file <code>C:\Windows\THybZSNv.exe</code>.</li>
+</ul>
 </div><h2 id="environment-tools">Environment &amp; Tools</h2>
 <ul>
 <li>Operating System: Windows 10/11 Enterprise.</li>
@@ -144,8 +150,8 @@ I created a CSV lookup file containing Registry paths associated with persistenc
 <td>Machine policy-based Run key</td>
 </tr>
 </tbody></table></div>
-</details><h4>Steps to Create the Lookup Table</h4>
-<ol>
+</details><br><details>
+<summary>Steps to Create the Lookup Table</summary><ol>
 <li>Navigate to <code>Settings</code> &gt; <code>Lookups</code>.</li>
 <li>Open the Lookup table files section.</li>
 <li>Click <code>New Lookup Table File</code>.</li>
@@ -154,7 +160,7 @@ I created a CSV lookup file containing Registry paths associated with persistenc
 <li>Enter the destination filename, ending in .csv.</li>
 <li>Click Save.</li>
 </ol>
-<p>We can now reference the uploaded CSV filename directly in our Splunk query using the <code>lookup</code> command.<br><br></p>
+</details><p>We can now reference the uploaded CSV filename directly in our Splunk query using the <code>lookup</code> command.<br><br></p>
 <p>I also used <strong><a href="https://docs.splunk.com/Splexicon:Lookupdefinition?_gl=1*6ssuny*_gcl_au*NjQ5NjU4OTcyLjE3OTMyMDU4MTI.*FPAU*NjQ5NjU4OTcyLjE3OTMyMDU4MTI.*_ga*MTA0MDgyNzQ1LjE3OTMyMDU4MTI.*_ga_5EPM2P39FV*czE3OTUyOTAxNzMkbzE4JGcwJHQxNzk1MjkwMTczJGo2MCRsMCRoMTMyNTc4MDM4MA..*_fplc*cE1SVmxMWnVON1FCUiUyRnlrUzk1YW1Ub2l3NHY4b0VUQWlFTE5ScWNFJTJCMk9LR2pUckFZNDhhVTJSaEglMkZuJTJCeDRPZG5uNWdFMlVSNG1aM3JwTlIlMkJDM0F5REhMZUolMkZ5OUlGQWVTVXY3Mng3aDZRakwlMkY3OXhHcWZhbW9FSndZU2clM0QlM0Q." target="_blank" rel="noopener noreferrer">Lookup Definitions</a></strong>
 to configure how Splunk accesses and uses the uploaded lookup table.</p>
 <details>
@@ -180,16 +186,29 @@ While some appeared to be associated with legitimate applications, one entry sto
 <p>This finding will be examined further by investigating the process responsible for creating the entry and reconstructing its execution chain.</p>
 <hr>
 <h3 id="stage-3-tracing-the-execution-of-the-persistence-entry">Stage 3: Tracing the Execution of the Persistence Entry</h3>
-<p>I started by searching for <code>dghelper.dll</code> across Sysmon Process Creation events to identify related process activity.</p>
+<p>To investigate how the persistence entry was introduced, I searched Sysmon Process Creation events (Event ID 1) for references to <code>dghelper.dll</code>. </p>
 <div class="code"><div class="cap"><span>SPL</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>index=&quot;aa15cbf9&quot; 
     source=&quot;XmlWinEventLog:Microsoft-Windows-Sysmon/Operational&quot; 
     EventID=1 &quot;dghelper.dll&quot;
     | table _time, Computer, User, Image, CommandLine, ParentCommandLine
     | sort - _time</code></pre></div>
+<p><figure><img src="../../assets/investigations/Hunting Registry Run Key Persistence/2.png" alt="Tracing the execution" loading="lazy" width="1870" height="157"></figure>
+The results revealed a PowerShell command that downloaded the DLL from <code>10.0.2.6</code> and saved it to <code>C:\Windows\System32</code>.<br>
+Shortly after, <code>reg.exe</code> added the <code>Updater</code> value to the Registry Run key, configuring the DLL to execute through <code>rundll32</code>.<br><br> 
+Both events showed <code>cmd.exe</code> as the parent command line, indicating that both <code>PowerShell</code> and <code>reg.exe</code> were launched by a command prompt process.</p>
+<p>I also investigated the related PIDs and PPIDs to identify the parent-child process relationships and reconstruct the execution chain.</p>
+<p><figure><img src="../../assets/investigations/Hunting Registry Run Key Persistence/3.png" alt="Process execution" loading="lazy" width="1875" height="154"></figure>
+At this point, we reached the same finding discussed in the previous investigation: <code>cmd.exe (PID 3916)</code> was responsible for launching several suspicious commands.<br>
+As established in the previous investigation, its parent process was the suspicious executable <code>C:\Windows\THybZSNv.exe</code>.<br><br></p>
+<p>Since the execution chain and the activities originating from this process were already examined in the <strong><a href="https://abdo-dfir.github.io/portfolio/investigations/hunting_powerShell_execution_artifacts/" target="_blank" rel="noopener noreferrer">previous investigation</a></strong>.</p>
 <h2 id="reconstructed-process-execution-trees">Reconstructed Process Execution Trees</h2>
-<h2 id="timeline">Timeline</h2>
-<p>:::timeline
-:::</p>
+<div class="code"><div class="cap"><span>text</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>services.exe (PID 728)
+└── THybZSNv.exe (PID 10228)
+    └── cmd.exe (PID 3916)
+        ├── powershell.exe (PID 2748)
+        │   └── Downloads dghelper.dll
+        └── reg.exe (PID 2256)
+            └── Creates the Updater Run key</code></pre></div>
 <h2 id="mitre-attck-mapping">MITRE ATT&amp;CK Mapping</h2>
 <div class="tablewrap" tabindex="0"><table>
 <thead>
@@ -199,8 +218,14 @@ While some appeared to be associated with legitimate applications, one entry sto
 <th>Technique</th>
 </tr>
 </thead>
-</table></div>
-<h2 id="indicators-of-compromise">Indicators of Compromise</h2>
+<tbody><tr>
+<td>Creating a Registry Run key to execute the DLL at startup/logon</td>
+<td>Persistence</td>
+<td><a href="https://attack.mitre.org/techniques/T1547/001/" target="_blank" rel="noopener noreferrer">T1547.001 – Registry Run Keys / Startup Folder</a></td>
+</tr>
+</tbody></table></div>
+<h2 id="timeline">Timeline</h2>
+<ol class="timeline"><li><span class="when">2025-06-11 22:29:46</span><b>PowerShell downloads <code>dghelper.dll</code> from <code>10.0.2.6</code>.</b></li><li><span class="when">2025-06-11 22:29:50</span><b>Sysmon Event ID 11 records the creation of <code>dghelper.dll</code>.</b></li><li><span class="when">2025-06-11 22:30:38</span><b><code>reg.exe</code> creates the <code>Updater</code> value under the Registry Run key, configuring <code>rundll32</code> to load the DLL.</b></li></ol><h2 id="indicators-of-compromise">Indicators of Compromise</h2>
 <div class="tablewrap" tabindex="0"><table>
 <thead>
 <tr>
@@ -209,9 +234,47 @@ While some appeared to be associated with legitimate applications, one entry sto
 <th>Notes</th>
 </tr>
 </thead>
-</table></div>
+<tbody><tr>
+<td>Host</td>
+<td><code>WKS-4F1D.avongate.local</code></td>
+<td>Affected workstation</td>
+</tr>
+<tr>
+<td>Registry Key</td>
+<td><code>HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run</code></td>
+<td>Machine-wide persistence location</td>
+</tr>
+<tr>
+<td>Registry Value</td>
+<td><code>Updater</code></td>
+<td>Suspicious autostart value</td>
+</tr>
+<tr>
+<td>Registry Data</td>
+<td><code>rundll32 C:\Windows\System32\dghelper.dll,MainFunc</code></td>
+<td>Command configured to execute at startup/logon</td>
+</tr>
+<tr>
+<td>File Path</td>
+<td><code>C:\Windows\System32\dghelper.dll</code></td>
+<td>DLL referenced by the persistence entry</td>
+</tr>
+</tbody></table></div>
 <h2 id="response-actions">Response actions</h2>
+<ul>
+<li>Remove the malicious Updater value from the Registry Run key to prevent the DLL from being launched at subsequent logons.</li>
+<li>Isolate the affected host, from the network for further investigation.</li>
+<li>Preserve a copy of <code>dghelper.dll</code> for further analysis before deleting it.</li>
+<li>Perform a full endpoint scan to identify additional malicious files, persistence mechanisms, or signs of compromise.</li>
+<li>Review related security logs and monitor for any further suspicious activity.</li>
+</ul>
 <h2 id="conclusion">Conclusion</h2>
+<ul>
+<li>The investigation identified a malicious Registry Run key entry used to establish persistence <code>HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run</code> on <code>WKS-4F1D.avongate.local</code>. </li>
+<li>The entry was created by <code>reg.exe</code> under the <code>NT AUTHORITY\SYSTEM</code> account and configured to execute <code>dghelper.dll</code> through <code>rundll32</code> at startup or logon.</li>
+<li>The Registry Run key was successfully created, but there is no evidence that the autostart mechanism worked or that <code>dghelper.dll</code> was executed through it.</li>
+<li>The investigation also linked the DLL download and Registry modification to the previously identified malicious executable <code>C:\Windows\THybZSNv.exe</code>, which initiated the activity through <code>cmd.exe</code>.</li>
+</ul>
 </div>
 </div></div>
 </article>
