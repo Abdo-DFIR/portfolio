@@ -149,10 +149,9 @@ I also investigated the related PIDs and PPIDs to identify the parent-child proc
 
 ![Process execution](<assets/investigations/Hunting Registry Run Key Persistence/3.png>)
 At this point, we reached the same finding discussed in the previous investigation: `cmd.exe (PID 3916)` was responsible for launching several suspicious commands.<br>
-As established in the previous investigation, its parent process was the suspicious executable `C:\Windows\THybZSNv.exe`.<br><br>
+As established in the previous investigation, its parent process was the suspicious executable `C:\Windows\THybZSNv.exe`.<br>
 
-Since the execution chain and the activities originating from this process were already examined in the **[previous investigation](https://abdo-dfir.github.io/portfolio/investigations/hunting_powerShell_execution_artifacts/)**.
-
+The execution chain and activities associated with this process were previously investigated and documented in the [**previous investigation**](https://abdo-dfir.github.io/portfolio/investigations/hunting_powerShell_execution_artifacts/).
 
 ## Reconstructed Process Execution Trees
 ```
