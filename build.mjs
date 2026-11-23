@@ -218,7 +218,7 @@ function layout({ title, desc, base, active, body, home, file, article, noindex 
 <script src="${base}theme.js"></script>
 <link rel="stylesheet" href="${base}style.css">
 </head>
-<body>
+<body>${article ? '\n<div class="scroll-progress" aria-hidden="true"><span></span></div>' : ''}
 <a class="skip" href="#main">Skip to content</a>
 <header class="bar">
   <div class="wrap bar-in">

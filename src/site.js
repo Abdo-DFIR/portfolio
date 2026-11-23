@@ -31,6 +31,24 @@
   function $(s, c) { return (c || d).querySelector(s); }
   function $$(s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); }
 
+  var progressFill = $('.scroll-progress span');
+  if (progressFill) {
+    var progressFrame = 0;
+    function updateScrollProgress() {
+      progressFrame = 0;
+      var scrollable = root.scrollHeight - window.innerHeight;
+      var progress = scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0;
+      progressFill.style.transform = 'scaleX(' + progress + ')';
+    }
+    function scheduleScrollProgress() {
+      if (!progressFrame) progressFrame = window.requestAnimationFrame(updateScrollProgress);
+    }
+    window.addEventListener('scroll', scheduleScrollProgress, { passive: true });
+    window.addEventListener('resize', scheduleScrollProgress);
+    window.addEventListener('load', scheduleScrollProgress);
+    updateScrollProgress();
+  }
+
   var typewriter = $('[data-typewriter]');
   if (typewriter && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
     var characters = Array.from(typewriter.textContent);
