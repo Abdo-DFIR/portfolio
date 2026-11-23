@@ -302,7 +302,7 @@ services.exe (PID 728)
         └── mimi.exe (PID 9296)
 ```
 
-## Timeline
+## Timeline (UTC)
 :::timeline
 2025-06-11 22:28:11 | Service execution | `services.exe` starts the `PtQC` service, executing `THybZSNv.exe`. 
 2025-06-11 22:28:14 | Command execution | `THybZSNv.exe` spawns `cmd.exe` (PID 3916).

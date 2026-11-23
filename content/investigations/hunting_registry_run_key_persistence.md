@@ -171,7 +171,7 @@ services.exe (PID 728)
 | Creating a Registry Run key to execute the DLL at startup/logon | Persistence | [T1547.001 – Registry Run Keys / Startup Folder](https://attack.mitre.org/techniques/T1547/001/) |
 
 
-## Timeline
+## Timeline (UTC)
 :::timeline
 2025-06-11 22:29:46 | PowerShell downloads `dghelper.dll` from `10.0.2.6`.
 2025-06-11 22:29:50 | Sysmon Event ID 11 records the creation of `dghelper.dll`.

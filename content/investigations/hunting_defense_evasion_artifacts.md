@@ -140,7 +140,7 @@ THybZSNv.exe
 |---|---|---|---|
 | Clearing the Security, System, and Application event logs using `wevtutil.exe` | Defense Evasion | T1685.005 | Clear Windows Event Logs |
 
-## Timeline
+## Timeline (UTC)
 :::timeline
 2025-06-11 22:28:14 | Suspicious process execution | `THybZSNv.exe` launches `cmd.exe` (PID: 3916).
 2025-06-11 22:30:48 | Security log clearing | `cmd.exe` executes `wevtutil cl Security` through `wevtutil.exe` (PID: 3892).
