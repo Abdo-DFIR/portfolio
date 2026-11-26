@@ -5,7 +5,7 @@ category: Threat Hunting
 summary: A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.
 tags: [Threat Hunting, Windows Registry, Persistence]
 tools: [Splunk, SPL, Sysmon, MITRE ATT&CK]
-attack: [T1547, T1547.001, CAR-2013-01-002]
+attack: [T1547.001, CAR-2013-01-002]
 source: Lab Scenario: SOC 201 Course From TCM Security.
 ---
 ## Scenario
@@ -179,8 +179,7 @@ services.exe (PID 728)
 :::
 
 
-## Indicators of Compromise
-
+## Findings
 | Type | Value | Notes |
 |---|---|---|
 | Host | `WKS-4F1D.avongate.local` | Affected workstation |

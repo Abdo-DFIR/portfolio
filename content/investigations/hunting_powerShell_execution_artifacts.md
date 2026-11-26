@@ -329,7 +329,7 @@ services.exe (PID 728)
 | Clearing Windows event logs | Defense Evasion | T1070.001 – Clear Windows Event Logs |
 | Downloading `mimi.exe` | Command and Control | T1105 – Ingress Tool Transfer |
 
-## Indicators of Compromise
+## Findings
 | Type | Value | Notes |
 |---|---|---|
 | Host | `WKS-4F1D.avongate.local` | Compromised workstation |

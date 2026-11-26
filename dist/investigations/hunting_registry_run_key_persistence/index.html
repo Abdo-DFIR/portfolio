@@ -40,10 +40,10 @@
   <div class="kicker"><span class="cat">Threat Hunting</span><time datetime="2026-11-17">Nov 2026</time><span>6 min read</span><span>Lab Scenario: SOC 201 Course From TCM Security.</span></div>
   <h1>Hunting Registry Run Key Persistence</h1>
   <p class="summary">A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.</p>
-  <div class="tags"><span class="tag">Splunk</span><span class="tag">SPL</span><span class="tag">Sysmon</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag att">T1547</span><span class="tag att">T1547.001</span><span class="tag att">CAR-2013-01-002</span></div>
+  <div class="tags"><span class="tag">Splunk</span><span class="tag">SPL</span><span class="tag">Sysmon</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag att">T1547.001</span><span class="tag att">CAR-2013-01-002</span></div>
 </div></section>
 <div class="layout"><div class="wrap">
-  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#hunting-overview">Hunting Overview</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-trees">Reconstructed Process Execution Trees</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#timeline">Timeline</a></li><li><a href="#indicators-of-compromise">Indicators of Compromise</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
+  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#hunting-overview">Hunting Overview</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-trees">Reconstructed Process Execution Trees</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#timeline-utc">Timeline (UTC)</a></li><li><a href="#findings">Findings</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
   <div class="prose"><h2 id="scenario">Scenario</h2>
 <p>Following the previous investigations, the SOC team initiated a new threat-hunting investigation to examine potential <strong>persistence mechanisms</strong>.
 The investigation focuses on identifying <strong>suspicious modifications to Windows Registry Run keys and Startup entries</strong> that could allow an attacker to maintain persistence.</p>
@@ -225,8 +225,8 @@ As established in the previous investigation, its parent process was the suspici
 <td><a href="https://attack.mitre.org/techniques/T1547/001/" target="_blank" rel="noopener noreferrer">T1547.001 – Registry Run Keys / Startup Folder</a></td>
 </tr>
 </tbody></table></div>
-<h2 id="timeline">Timeline</h2>
-<ol class="timeline"><li><span class="when">2025-06-11 22:29:46</span><b>PowerShell downloads <code>dghelper.dll</code> from <code>10.0.2.6</code>.</b></li><li><span class="when">2025-06-11 22:29:50</span><b>Sysmon Event ID 11 records the creation of <code>dghelper.dll</code>.</b></li><li><span class="when">2025-06-11 22:30:38</span><b><code>reg.exe</code> creates the <code>Updater</code> value under the Registry Run key, configuring <code>rundll32</code> to load the DLL.</b></li></ol><h2 id="indicators-of-compromise">Indicators of Compromise</h2>
+<h2 id="timeline-utc">Timeline (UTC)</h2>
+<ol class="timeline"><li><span class="when">2025-06-11 22:29:46</span><b>PowerShell downloads <code>dghelper.dll</code> from <code>10.0.2.6</code>.</b></li><li><span class="when">2025-06-11 22:29:50</span><b>Sysmon Event ID 11 records the creation of <code>dghelper.dll</code>.</b></li><li><span class="when">2025-06-11 22:30:38</span><b><code>reg.exe</code> creates the <code>Updater</code> value under the Registry Run key, configuring <code>rundll32</code> to load the DLL.</b></li></ol><h2 id="findings">Findings</h2>
 <div class="tablewrap" tabindex="0"><table>
 <thead>
 <tr>
@@ -281,7 +281,11 @@ As established in the previous investigation, its parent process was the suspici
 </article>
 <section class="more"><div class="wrap">
   <div class="head"><h2 class="sec-title">More investigations</h2><a class="more-link" href="../../investigations/index.html">See all →</a></div>
-  <div class="list"><a class="row" href="../../investigations/hunting_defense_evasion_artifacts/" data-tags="Threat Hunting,Suspicious Execution,Defense Evasion" data-text="hunting defense evasion artifacts a threat-hunting investigation using splunk to identify suspicious defense evasion techniques on windwos endpoint. threat hunting threat hunting suspicious execution defense evasion splunk spl sysmon powershell mitre att&amp;ck tt1685.005 car-2021-01-003">
+  <div class="list"><a class="row" href="../../investigations/hunting_command_and_control_artifacts/" data-tags="Threat Hunting,Command and Control" data-text="hunting command and control (c2) artifacts a threat-hunting investigation using splunk to identify suspicious command and control (c2) activity on windows endpoints. threat hunting threat hunting command and control splunk spl sysmon powershell mitre att&amp;ck t1105">
+  <time datetime="2026-11-25">Nov 2026</time>
+  <span class="t"><strong>Hunting Command and Control (C2) Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious Command and Control (C2) activity on Windows endpoints.</span></span>
+  <span class="cat">Threat Hunting</span>
+</a><a class="row" href="../../investigations/hunting_defense_evasion_artifacts/" data-tags="Threat Hunting,Suspicious Execution,Defense Evasion" data-text="hunting defense evasion artifacts a threat-hunting investigation using splunk to identify suspicious defense evasion techniques on windwos endpoint. threat hunting threat hunting suspicious execution defense evasion splunk spl sysmon powershell mitre att&amp;ck tt1685.005 car-2021-01-003">
   <time datetime="2026-11-14">Nov 2026</time>
   <span class="t"><strong>Hunting Defense Evasion Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious defense evasion techniques on Windwos endpoint.</span></span>
   <span class="cat">Threat Hunting</span>

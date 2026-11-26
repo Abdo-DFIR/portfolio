@@ -43,7 +43,7 @@
   <div class="tags"><span class="tag">Splunk</span><span class="tag">SPL</span><span class="tag">Sysmon</span><span class="tag">Powershell</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag att">TT1685.005</span><span class="tag att">CAR-2021-01-003</span></div>
 </div></section>
 <div class="layout"><div class="wrap">
-  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#hunting-overview">Hunting Overview</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-tree">Reconstructed Process Execution Tree</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#timeline">Timeline</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#detection-improvement">Detection Improvement</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
+  <aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ol><li><a href="#scenario" class="on">Scenario</a></li><li><a href="#key-findings">Key Findings</a></li><li><a href="#environment-tools">Environment &amp; Tools</a></li><li><a href="#hunting-overview">Hunting Overview</a></li><li><a href="#hunting-analysis">Hunting &amp; Analysis</a></li><li><a href="#reconstructed-process-execution-tree">Reconstructed Process Execution Tree</a></li><li><a href="#mitre-attck-mapping">MITRE ATT&amp;CK Mapping</a></li><li><a href="#timeline-utc">Timeline (UTC)</a></li><li><a href="#response-actions">Response actions</a></li><li><a href="#detection-improvement">Detection Improvement</a></li><li><a href="#conclusion">Conclusion</a></li></ol></aside>
   <div class="prose"><h2 id="scenario">Scenario</h2>
 <p>After identifying <strong>suspicious defense evasion</strong> activities during the previous investigations, 
 we started a new threat-hunting investigation in Splunk to examine how the attacker attempted to clear Windows event logs and hide their activities.</p>
@@ -160,7 +160,7 @@ This executable was previously investigated in my blog <strong>Hunting Suspiciou
 <td>Clear Windows Event Logs</td>
 </tr>
 </tbody></table></div>
-<h2 id="timeline">Timeline</h2>
+<h2 id="timeline-utc">Timeline (UTC)</h2>
 <ol class="timeline"><li><span class="when">2025-06-11 22:28:14</span><b>Suspicious process execution</b><span><code>THybZSNv.exe</code> launches <code>cmd.exe</code> (PID: 3916).</span></li><li><span class="when">2025-06-11 22:30:48</span><b>Security log clearing</b><span><code>cmd.exe</code> executes <code>wevtutil cl Security</code> through <code>wevtutil.exe</code> (PID: 3892).</span></li><li><span class="when">2025-06-11 22:30:49</span><b>Security log cleared</b><span>Event ID 1102 recorded. [Security EID 1102]</span></li><li><span class="when">2025-06-11 22:30:54</span><b>System log clearing</b><span><code>cmd.exe</code> executes <code>wevtutil cl System</code> through <code>wevtutil.exe</code> (PID: 6288).</span></li><li><span class="when">2025-06-11 22:30:58</span><b>Application log clearing</b><span><code>cmd.exe</code> executes <code>wevtutil cl Application</code> through <code>wevtutil.exe</code> (PID: 8480).</span></li></ol><h2 id="response-actions">Response actions</h2>
 <ol>
 <li>Isolate the affected host.</li>
@@ -188,7 +188,11 @@ This executable was previously investigated in my blog <strong>Hunting Suspiciou
 </article>
 <section class="more"><div class="wrap">
   <div class="head"><h2 class="sec-title">More investigations</h2><a class="more-link" href="../../investigations/index.html">See all →</a></div>
-  <div class="list"><a class="row" href="../../investigations/hunting_registry_run_key_persistence/" data-tags="Threat Hunting,Windows Registry,Persistence" data-text="hunting registry run key persistence a threat-hunting investigation using splunk to identify suspicious registry run key modifications and potential persistence activity. threat hunting threat hunting windows registry persistence splunk spl sysmon mitre att&amp;ck t1547 t1547.001 car-2013-01-002">
+  <div class="list"><a class="row" href="../../investigations/hunting_command_and_control_artifacts/" data-tags="Threat Hunting,Command and Control" data-text="hunting command and control (c2) artifacts a threat-hunting investigation using splunk to identify suspicious command and control (c2) activity on windows endpoints. threat hunting threat hunting command and control splunk spl sysmon powershell mitre att&amp;ck t1105">
+  <time datetime="2026-11-25">Nov 2026</time>
+  <span class="t"><strong>Hunting Command and Control (C2) Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious Command and Control (C2) activity on Windows endpoints.</span></span>
+  <span class="cat">Threat Hunting</span>
+</a><a class="row" href="../../investigations/hunting_registry_run_key_persistence/" data-tags="Threat Hunting,Windows Registry,Persistence" data-text="hunting registry run key persistence a threat-hunting investigation using splunk to identify suspicious registry run key modifications and potential persistence activity. threat hunting threat hunting windows registry persistence splunk spl sysmon mitre att&amp;ck t1547.001 car-2013-01-002">
   <time datetime="2026-11-17">Nov 2026</time>
   <span class="t"><strong>Hunting Registry Run Key Persistence</strong><span>A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.</span></span>
   <span class="cat">Threat Hunting</span>
