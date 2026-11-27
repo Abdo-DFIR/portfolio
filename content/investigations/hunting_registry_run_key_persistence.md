@@ -47,7 +47,7 @@ The investigation focuses on identifying **suspicious modifications to Windows R
 
 
 ##  Hunting & Analysis
-During the previous investigation, we identified suspicious Registry Run key modifications that could indicate potential persistence activity.
+**The hunt covers three stages: building a registry persistence lookup table, hunting for registry-based persistence activity, and tracing the execution of persistence entries.**
 
 ---
 

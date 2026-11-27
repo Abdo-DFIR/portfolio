@@ -84,7 +84,7 @@ The investigation focuses on identifying <strong>suspicious modifications to Win
 <li>Correlate Registry changes with process creation events</li>
 </ul>
 </div><h2 id="hunting-analysis">Hunting &amp; Analysis</h2>
-<p>During the previous investigation, we identified suspicious Registry Run key modifications that could indicate potential persistence activity.</p>
+<p><strong>The hunt covers three stages: building a registry persistence lookup table, hunting for registry-based persistence activity, and tracing the execution of persistence entries.</strong></p>
 <hr>
 <h3 id="stage-1-creating-a-registry-persistence-lookup-table">Stage 1: Creating a Registry Persistence Lookup Table</h3>
 <p>According to <strong><a href="https://attack.mitre.org/techniques/T1547/001/" target="_blank" rel="noopener noreferrer">MITRE ATT&amp;CK technique T1547.001</a></strong>, Registry Run keys and Startup folders can be abused to achieve persistence.</p>
@@ -289,7 +289,7 @@ As established in the previous investigation, its parent process was the suspici
   <time datetime="2026-11-14">Nov 2026</time>
   <span class="t"><strong>Hunting Defense Evasion Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious defense evasion techniques on Windwos endpoint.</span></span>
   <span class="cat">Threat Hunting</span>
-</a><a class="row" href="../../investigations/hunting_powerShell_execution_artifacts/" data-tags="Threat Hunting,PowerShell,Suspicious Execution" data-text="hunting suspicious command execution artifacts a threat-hunting investigation using splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities. threat hunting threat hunting powershell suspicious execution splunk spl sysmon powershell mitre att&amp;ck virustotal t1059 t1059.001 car-2014-04-003">
+</a><a class="row" href="../../investigations/hunting_suspicious_command_execution_artifacts/" data-tags="Threat Hunting,PowerShell,Suspicious Execution" data-text="hunting suspicious command execution artifacts a threat-hunting investigation using splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities. threat hunting threat hunting powershell suspicious execution splunk spl sysmon powershell mitre att&amp;ck virustotal t1059 t1059.001 car-2014-04-003">
   <time datetime="2026-11-09">Nov 2026</time>
   <span class="t"><strong>Hunting Suspicious Command Execution Artifacts</strong><span>A threat-hunting investigation using Splunk to identify suspicious command execution, reconstruct process relationships, and uncover potentially malicious activities.</span></span>
   <span class="cat">Threat Hunting</span>

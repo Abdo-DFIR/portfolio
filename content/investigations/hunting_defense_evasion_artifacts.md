@@ -11,6 +11,7 @@ source: Lab Scenario: SOC 201 Course From TCM Security.
 ## Scenario
 After identifying **suspicious defense evasion** activities during the previous investigations, 
 we started a new threat-hunting investigation in Splunk to examine how the attacker attempted to clear Windows event logs and hide their activities.
+
 ## Key Findings
 :::callout Key Findings
 - **What happened:** The Security, System, and Application event logs were cleared within 10 seconds (22:30:48–22:30:58).
@@ -44,7 +45,8 @@ we started a new threat-hunting investigation in Splunk to examine how the attac
 
 
 ##  Hunting & Analysis
-During the previous investigation, we identified suspicious Defense Evasion activities related to Windows event log clearing that require further investigation.
+During the previous investigation, we identified suspicious Defense Evasion activities related to Windows event log clearing that require further investigation.<br><br>
+**The hunt covers four stages: confirming evidence of log clearing, identifying the commands responsible, tracing the process execution chain, and assessing the impact of the activity.**
 
 ---
 
@@ -148,6 +150,19 @@ THybZSNv.exe
 2025-06-11 22:30:54 | System log clearing | `cmd.exe` executes `wevtutil cl System` through `wevtutil.exe` (PID: 6288).
 2025-06-11 22:30:58 | Application log clearing | `cmd.exe` executes `wevtutil cl Application` through `wevtutil.exe` (PID: 8480).
 :::
+
+## Findings
+| Type | Value | Notes |
+|---|---|---|
+| Host | `WKS-4F1D.avongate.local` | Affected workstation |
+| Cleared Logs | Security, System, Application | Three Windows event logs were targeted |
+| Clearing Utility | `wevtutil.exe` | Used to clear Windows event logs |
+| Parent Process | `cmd.exe` (PID: `3916`) | Launched the three `wevtutil.exe` processes |
+| Initial Process | `THybZSNv.exe` | Launched the suspicious `cmd.exe` process |
+| Security Event | Event ID `1102` | Confirms the Security event log was cleared |
+| System Event | Event ID `104` | Confirms the System event log was cleared |
+| Post-Clearing Activity | `mimi.exe` | Downloaded at `22:31:19` and executed at `22:31:33` |
+| Time Range | `22:30:48–22:30:58` | Three log-clearing commands were executed within 10 seconds |
 
 ## Response actions
 1. Isolate the affected host.
