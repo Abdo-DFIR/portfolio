@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout source repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -51,6 +53,7 @@ jobs:
           git -C deployment config user.name "github-actions[bot]"
           git -C deployment config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git -C deployment add --all
+
           if git -C deployment diff --cached --quiet; then
             echo "Generated website is already up to date."
           else
