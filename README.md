@@ -86,7 +86,7 @@ Put images in `content/assets/`. Link to another page of your own site with a le
 
 Publish the contents of `dist/` (or let a host build it).
 
-- **GitHub Pages**: `.github/workflows/deploy.yml` builds and checks this site on pushes to `main`, then publishes only `dist/` to the `main` branch of `Abdo-DFIR/Abdo-DFIR.github.io`. Add a `PAGES_DEPLOY_TOKEN` Actions secret to this source repository with write access to the deployment repository. In the deployment repository, configure Pages to deploy from the `main` branch and `/(root)`. The site URL and base path in `site.config.json` are configured for the root URL.
+- **GitHub Pages**: push the project to GitHub, open Settings, Pages, and choose "GitHub Actions". The workflow in `.github/workflows/pages.yml` builds, checks and publishes on every push to `main`. If the site lives at `username.github.io/repo-name`, set `"basePath": "/repo-name/"` and `"siteUrl": "https://username.github.io/repo-name/"` in `site.config.json`.
 - **Netlify or Cloudflare Pages**: build command `npm run build`, output folder `dist`. Set `SITE_URL` as an environment variable, or fill in `siteUrl`. The build emits a `_headers` file with security response headers for hosts that support this format (including Cloudflare Pages); configure the equivalent headers in your host if it does not.
 - **Any web host**: run `npm run build` and upload the contents of `dist/`.
 

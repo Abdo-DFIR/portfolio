@@ -9,7 +9,7 @@ attack: [T1105]
 source: Lab Scenario: SOC 201 Course From TCM Security.
 ---
 ## Scenario
-Following the suspicious activities identified during [**previous investigation**](/investigations/hunting_suspicious_command_execution_artifacts/),
+Following the suspicious activities identified during [**previous investigation**](https://abdo-dfir.github.io/portfolio/investigations/hunting_powerShell_execution_artifacts/), 
 we suspect the attacker may be establishing **Command and Control (C2)** communications with the compromised Windows endpoint to remotely interact with the system, 
 transfer additional tools and payloads, and execute further commands.
 

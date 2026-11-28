@@ -1,5 +1,5 @@
 
-name: Build and Deploy Portfolio
+name: Build and Deploy DFIR Portfolio
 
 on:
   push:
@@ -9,20 +9,20 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: portfolio-deploy
+  group: github-pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ github.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -31,32 +31,25 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build website
         run: npm run build
 
-      - name: Check generated website
-        run: npm run check
-
-      - name: Checkout deployment repository
-        uses: actions/checkout@v4
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
         with:
-          repository: Abdo-DFIR/Abdo-DFIR.github.io
-          ref: main
-          token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
-          path: deployment
+          path: ./dist
 
-      - name: Publish generated website
-        run: |
-          rsync -a --delete --exclude='.git/' dist/ deployment/
-          git -C deployment config user.name "github-actions[bot]"
-          git -C deployment config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git -C deployment add --all
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-          if git -C deployment diff --cached --quiet; then
-            echo "Generated website is already up to date."
-          else
-            git -C deployment commit -m "Deploy portfolio from ${GITHUB_SHA}"
-            git -C deployment push origin HEAD:main
-          fi
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v4

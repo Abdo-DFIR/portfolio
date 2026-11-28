@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://abdo-dfir.github.io/sitemap.xml
+Sitemap: https://abdo-dfir.github.io/portfolio/sitemap.xml

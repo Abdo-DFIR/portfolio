@@ -9,10 +9,10 @@
 <meta property="og:title" content="Hunting Defense Evasion Artifacts | Abdelrhman Mohamed">
 <meta property="og:description" content="A threat-hunting investigation using Splunk to identify suspicious defense evasion techniques on Windwos endpoint.">
 <meta name="theme-color" content="#0d1117">
-<link rel="canonical" href="https://abdo-dfir.github.io/investigations/hunting_defense_evasion_artifacts/">
+<link rel="canonical" href="https://abdo-dfir.github.io/portfolio/investigations/hunting_defense_evasion_artifacts/">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Abdelrhman Mohamed">
-<meta property="og:url" content="https://abdo-dfir.github.io/investigations/hunting_defense_evasion_artifacts/">
+<meta property="og:url" content="https://abdo-dfir.github.io/portfolio/investigations/hunting_defense_evasion_artifacts/">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <link rel="preload" href="../../fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -50,7 +50,7 @@ we started a new threat-hunting investigation in Splunk to examine how the attac
 <h2 id="key-findings">Key Findings</h2>
 <div class="callout"><span class="callout-label">Key Findings</span><ul>
 <li><strong>What happened:</strong> The Security, System, and Application event logs were cleared within 10 seconds (22:30:48–22:30:58).</li>
-<li><strong>How:</strong> Three <code>wevtutil.exe</code> processes, launched by <code>cmd.exe</code> (PID <code>3916</code>), cleared the logs. The <code>cmd.exe</code> process was started by the malicious <code>THybZSNv.exe</code> service binary identified in the <a href="../../investigations/hunting_suspicious_command_execution_artifacts/">previous investigation</a>.</li>
+<li><strong>How:</strong> Three <code>wevtutil.exe</code> processes, launched by <code>cmd.exe</code> (PID <code>3916</code>), cleared the logs. The <code>cmd.exe</code> process was started by the malicious <code>THybZSNv.exe</code> service binary identified in The <a href="https://abdo-mo.pages.dev/investigations/hunting_powerShell_execution_artifacts/" target="_blank" rel="noopener noreferrer">previous investigation</a>.</li>
 <li><strong>Evidence:</strong> Sysmon Event ID 1, Security Event ID 1102, and System Event ID 104.</li>
 <li><strong>Why evidence remained available:</strong> The attacker continued working after clearing the logs. <code>mimi.exe</code> was downloaded at <code>22:31:19</code>, and the activity remained visible in Splunk.</li>
 </ul>

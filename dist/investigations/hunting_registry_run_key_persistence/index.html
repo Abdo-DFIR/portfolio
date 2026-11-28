@@ -9,10 +9,10 @@
 <meta property="og:title" content="Hunting Registry Run Key Persistence | Abdelrhman Mohamed">
 <meta property="og:description" content="A threat-hunting investigation using Splunk to identify suspicious Registry Run key modifications and potential persistence activity.">
 <meta name="theme-color" content="#0d1117">
-<link rel="canonical" href="https://abdo-dfir.github.io/investigations/hunting_registry_run_key_persistence/">
+<link rel="canonical" href="https://abdo-dfir.github.io/portfolio/investigations/hunting_registry_run_key_persistence/">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Abdelrhman Mohamed">
-<meta property="og:url" content="https://abdo-dfir.github.io/investigations/hunting_registry_run_key_persistence/">
+<meta property="og:url" content="https://abdo-dfir.github.io/portfolio/investigations/hunting_registry_run_key_persistence/">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <link rel="preload" href="../../fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -201,7 +201,7 @@ Both events showed <code>cmd.exe</code> as the parent command line, indicating t
 <p><figure><img src="../../assets/investigations/Hunting Registry Run Key Persistence/3.png" alt="Process execution" loading="lazy" width="1875" height="154"></figure>
 At this point, we reached the same finding discussed in the previous investigation: <code>cmd.exe (PID 3916)</code> was responsible for launching several suspicious commands.<br>
 As established in the previous investigation, its parent process was the suspicious executable <code>C:\Windows\THybZSNv.exe</code>.<br></p>
-<p>The execution chain and activities associated with this process were previously investigated and documented in the <a href="../../investigations/hunting_suspicious_command_execution_artifacts/"><strong>previous investigation</strong></a>.</p>
+<p>The execution chain and activities associated with this process were previously investigated and documented in the <a href="https://abdo-dfir.github.io/portfolio/investigations/hunting_powerShell_execution_artifacts/" target="_blank" rel="noopener noreferrer"><strong>previous investigation</strong></a>.</p>
 <h2 id="reconstructed-process-execution-trees">Reconstructed Process Execution Trees</h2>
 <div class="code"><div class="cap"><span>text</span><button type="button" class="copy">Copy</button></div><pre tabindex="0"><code>services.exe (PID 728)
 └── THybZSNv.exe (PID 10228)
