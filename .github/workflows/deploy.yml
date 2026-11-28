@@ -1,5 +1,5 @@
 
-name: Build and Deploy DFIR Portfolio
+name: Build and Deploy Portfolio
 
 on:
   push:
@@ -9,19 +9,17 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: github-pages
+  group: portfolio-deploy
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout source repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -31,25 +29,31 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build website
         run: npm run build
 
-      - name: Upload website
-        uses: actions/upload-pages-artifact@v3
+      - name: Check generated website
+        run: npm run check
+
+      - name: Checkout deployment repository
+        uses: actions/checkout@v4
         with:
-          path: ./dist
+          repository: Abdo-DFIR/Abdo-DFIR.github.io
+          ref: main
+          token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+          path: deployment
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Deploy website
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publish generated website
+        run: |
+          rsync -a --delete --exclude='.git/' dist/ deployment/
+          git -C deployment config user.name "github-actions[bot]"
+          git -C deployment config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C deployment add --all
+          if git -C deployment diff --cached --quiet; then
+            echo "Generated website is already up to date."
+          else
+            git -C deployment commit -m "Deploy portfolio from ${GITHUB_SHA}"
+            git -C deployment push origin HEAD:main
+          fi
