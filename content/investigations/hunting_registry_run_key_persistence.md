@@ -153,7 +153,7 @@ I also investigated the related PIDs and PPIDs to identify the parent-child proc
 At this point, we reached the same finding discussed in the previous investigation: `cmd.exe (PID 3916)` was responsible for launching several suspicious commands.<br>
 As established in the previous investigation, its parent process was the suspicious executable `C:\Windows\THybZSNv.exe`.<br>
 
-The execution chain and activities associated with this process were previously investigated and documented in the [**previous investigation**](https://abdo-dfir.github.io/portfolio/investigations/hunting_suspicious_command_execution_artifacts/).
+The execution chain and activities associated with this process were previously investigated and documented in the [**previous investigation**](/investigations/hunting_suspicious_command_execution_artifacts/).
 
 ## Reconstructed Process Execution Trees
 ```
