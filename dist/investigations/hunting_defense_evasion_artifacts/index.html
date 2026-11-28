@@ -50,7 +50,7 @@ we started a new threat-hunting investigation in Splunk to examine how the attac
 <h2 id="key-findings">Key Findings</h2>
 <div class="callout"><span class="callout-label">Key Findings</span><ul>
 <li><strong>What happened:</strong> The Security, System, and Application event logs were cleared within 10 seconds (22:30:48–22:30:58).</li>
-<li><strong>How:</strong> Three <code>wevtutil.exe</code> processes, launched by <code>cmd.exe</code> (PID <code>3916</code>), cleared the logs. The <code>cmd.exe</code> process was started by the malicious <code>THybZSNv.exe</code> service binary identified in The <a href="https://abdo-mo.pages.dev/investigations/hunting_powerShell_execution_artifacts/" target="_blank" rel="noopener noreferrer">previous investigation</a>.</li>
+<li><strong>How:</strong> Three <code>wevtutil.exe</code> processes, launched by <code>cmd.exe</code> (PID <code>3916</code>), cleared the logs. The <code>cmd.exe</code> process was started by the malicious <code>THybZSNv.exe</code> service binary identified in the <a href="../../investigations/hunting_suspicious_command_execution_artifacts/">previous investigation</a>.</li>
 <li><strong>Evidence:</strong> Sysmon Event ID 1, Security Event ID 1102, and System Event ID 104.</li>
 <li><strong>Why evidence remained available:</strong> The attacker continued working after clearing the logs. <code>mimi.exe</code> was downloaded at <code>22:31:19</code>, and the activity remained visible in Splunk.</li>
 </ul>
